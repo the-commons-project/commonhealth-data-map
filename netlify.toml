@@ -1,0 +1,13 @@
+[Settings]
+  ID = "commonhealth-data-map"
+
+[build]
+  base    = "."
+  publish = "build"
+  command = "yarn build"
+  environment = { YARN_VERSION = "1.22.4" }
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
