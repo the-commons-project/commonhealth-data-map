@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${CDM_DEBUG}" ]]; then
+    set -x
+fi
+
+IMAGE_NAME=commonhealth_dashboard_dataproc
+
+function usage() {
+    echo -n \
+        "Usage: $(basename "$0")
+Launch Bash within the Jupyter container image.
+"
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    docker run --rm -it \
+        -v $(pwd):/opt/src \
+        -v $(pwd)/entrypoint.sh:/opt/entrypoint.sh \
+        ${IMAGE_NAME}:latest \
+        /opt/src
+fi

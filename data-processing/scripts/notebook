@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${CDM_DEBUG}" ]]; then
+    set -x
+fi
+
+IMAGE_NAME=commonhealth_dashboard_dataproc
+
+function usage() {
+    echo -n \
+        "Usage: $(basename "$0")
+Launch Jupyter notebooks for data processing.
+"
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    docker run --rm -it \
+        -v $(pwd):/opt/src \
+        -p 8888:8888 \
+        --entrypoint jupyter \
+        ${IMAGE_NAME} \
+        notebook \
+        --ip=0.0.0.0 \
+        --port=8888 \
+        --no-browser \
+        --allow-root \
+        --notebook-dir=/opt/src
+fi
