@@ -4,7 +4,7 @@ import { Spinner } from "@blueprintjs/core";
 class Loading extends React.Component {
   render() {
     return (
-      <div class="loading">
+      <div className="loading">
         <Spinner />
       </div>
     );
