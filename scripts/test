@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${CDM_DEBUG}" ]]; then
+    set -x
+fi
+
+function usage() {
+    echo -n \
+        "Usage: $(basename "$0")
+Run linters and tests.
+"
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ "${1:-}" = "--help" ]; then
+        usage
+    else
+        echo "Executing test suite"
+        CI=1 yarn run test
+    fi
+fi
