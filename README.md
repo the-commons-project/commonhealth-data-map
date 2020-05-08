@@ -6,7 +6,7 @@ A CommonHealth data map.
 
 ## Setup
 
-Run `yarn install` and then `yarn start`
+Run `./scripts/setup` and then `./scripts/server`.
 
 ## Processing data
 
@@ -83,5 +83,16 @@ are trying to read in doesn't actually exist yet.
 ### Adding new data for visualization.
 
 If you create data for publishing to the site, create it in the `data/published` directory
-and  modify the `cibuild` script to include moving it to the
+and modify the `cibuild` script to include moving it to the
 correct location or performing any secondary processing like vector tile generation.
+
+## Scripts
+
+| Name           | Description                                               |
+| -------------- | --------------------------------------------------------- |
+| `build-website | Build the application and visualization data locally.     |
+| `cibuild`      | Build application for staging or a release.               |
+| `server`       | Start application.                                        |
+| `setup`        | Attempts to setup the project's development environment.  |
+| `test`         | Run linters and tests.                                    |
+| `update`       | Install project runtime dependencies.                     |
