@@ -21,7 +21,8 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     else
         . "/usr/local/bin/run-build-functions.sh"
 
-        # Build React application
+        # Test and build React application
+        ./scripts/test
         yarn build
 
         ### Install dependencies ###
