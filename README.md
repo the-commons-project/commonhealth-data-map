@@ -88,11 +88,11 @@ correct location or performing any secondary processing like vector tile generat
 
 ## Scripts
 
-| Name           | Description                                               |
-| -------------- | --------------------------------------------------------- |
-| `build-website | Build the application and visualization data locally.     |
-| `cibuild`      | Build application for staging or a release.               |
-| `server`       | Start application.                                        |
-| `setup`        | Attempts to setup the project's development environment.  |
-| `test`         | Run linters and tests.                                    |
-| `update`       | Install project runtime dependencies.                     |
+| Name            | Description                                               |
+| --------------  | --------------------------------------------------------- |
+| `build-website` | Build the application and visualization data locally.     |
+| `cibuild`       | Build application for staging or a release.               |
+| `server`        | Start application.                                        |
+| `setup`         | Attempts to setup the project's development environment.  |
+| `test`          | Run linters and tests.                                    |
+| `update`        | Install project runtime dependencies.                     |
