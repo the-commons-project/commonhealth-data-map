@@ -1,0 +1,8 @@
+.header-primary {
+  height: 66px;
+  background-color: #ccc;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  z-index: 10;
+}

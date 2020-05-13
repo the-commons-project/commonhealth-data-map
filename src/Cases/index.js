@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState, useMemo, useCallback } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import { MapboxLayer } from "@deck.gl/mapbox";
 import { ScatterplotLayer } from "@deck.gl/layers";
 import MapGL, { CustomLayer } from "@urbica/react-map-gl";
@@ -6,6 +12,7 @@ import { Button, MenuItem, Icon } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import groupBy from "lodash.groupby";
 import keyBy from "lodash.keyby";
+import { useParams } from "react-router-dom";
 
 import MaskLayer from "../MaskLayer";
 
@@ -17,14 +24,15 @@ import {
   changeDates,
   tabCodes,
   eacCountries,
-  changeCountrySelectEntries
+  changeCountrySelectEntries,
 } from "../util";
 import Chart from "./Chart";
 import Numbers from "./Numbers";
 import Table from "./Table";
 import StateContext from "../State";
 
-const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
+const MAPBOX_ACCESS_TOKEN =
+  "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
 
 export default () => {
   const [viewport, setViewport] = useState({
@@ -32,7 +40,7 @@ export default () => {
     longitude: 33.45,
     zoom: 4,
     bearing: 0,
-    pitch: 0
+    pitch: 0,
   });
 
   const [showTable, setShowTable] = useState(true);
@@ -52,7 +60,14 @@ export default () => {
     setReady,
     setCountrySelectEntries,
     setSelectedCountryId,
-    cases: { caseData, setCaseData, indexedCaseData, setIndexedCaseData, caseDates, setCaseDates }
+    cases: {
+      caseData,
+      setCaseData,
+      indexedCaseData,
+      setIndexedCaseData,
+      caseDates,
+      setCaseDates,
+    },
   } = useContext(StateContext);
 
   // Set the active tab.
@@ -61,14 +76,16 @@ export default () => {
   useEffect(() => {
     if (!dataLoaded) {
       fetch("/data/jhu-case-data.json")
-        .then(response => response.json())
-        .then(data => {
-          const loadedDates = Array.from(new Set(data.map(d => d.date))).sort();
+        .then((response) => response.json())
+        .then((data) => {
+          const loadedDates = Array.from(
+            new Set(data.map((d) => d.date))
+          ).sort();
           const grouped = groupBy(data, "date");
           const indexed = Object.entries(grouped).reduce(
             (acc, [k, v]) => ({
               ...acc,
-              [k]: keyBy(v, "code")
+              [k]: keyBy(v, "code"),
             }),
             {}
           );
@@ -79,13 +96,19 @@ export default () => {
           setDataLoaded(true);
         });
     }
-  }, []);
+  }, [dataLoaded, setCaseData, setCaseDates, setIndexedCaseData, setReady]);
 
   // Setup tab data on mount and when data is loaded
   useEffect(() => {
     if (dataLoaded) {
       // set the date slider to the case data dates.
-      changeDates(dates, caseDates, selectedDateIndex, setDates, setSelectedDateIndex);
+      changeDates(
+        dates,
+        caseDates,
+        selectedDateIndex,
+        setDates,
+        setSelectedDateIndex
+      );
 
       // All eac countries are selectable.
       changeCountrySelectEntries(
@@ -95,11 +118,26 @@ export default () => {
         setSelectedCountryId
       );
     }
-  }, [activeTab, dataLoaded]);
+  }, [
+    activeTab,
+    caseDates,
+    dataLoaded,
+    dates,
+    selectedCountryId,
+    selectedDateIndex,
+    setCountrySelectEntries,
+    setDates,
+    setSelectedCountryId,
+    setSelectedDateIndex,
+  ]);
 
-  const activeData = dataLoaded ? indexedCaseData[dates[selectedDateIndex]] : null;
+  const activeData = dataLoaded
+    ? indexedCaseData[dates[selectedDateIndex]]
+    : null;
 
-  const chartTime = dataLoaded ? new Date(dates[selectedDateIndex]).getTime() : undefined;
+  const chartTime = dataLoaded
+    ? new Date(dates[selectedDateIndex]).getTime()
+    : undefined;
 
   const isSelectedCountry = useCallback(
     (countryCode, countryName) => {
@@ -114,11 +152,11 @@ export default () => {
   const chartData = useMemo(
     () =>
       caseData
-        .filter(d => d.code === selectedCountryId)
+        .filter((d) => d.code === selectedCountryId)
         .sort((a, b) => (a.date > b.date ? 1 : -1))
         .map((d, i) => ({
           x: new Date(d.date).getTime(),
-          y: d[activeCaseType.id]
+          y: d[activeCaseType.id],
         })),
     [activeCaseType.id, caseData, selectedCountryId]
   );
@@ -135,22 +173,24 @@ export default () => {
         stroked: true,
         highlightColor: [87, 102, 32],
         lineWidthUnits: "pixels",
-        getPosition: d => d.coordinates,
-        pickable: true
+        getPosition: (d) => d.coordinates,
+        pickable: true,
       }),
     []
   );
 
   scatterPlotLayer.setProps({
-    data: caseData.filter(d => d.date === dates[selectedDateIndex]),
-    getLineWidth: d => (d.code === "eac" ? 0 : isSelectedCountry(d.code, d.name) ? 1 : 0.5),
-    getRadius: d => (d.code === "eac" ? 0 : radius * 700 * Math.pow(d[activeCaseType.id], 0.3)),
-    getFillColor: d =>
+    data: caseData.filter((d) => d.date === dates[selectedDateIndex]),
+    getLineWidth: (d) =>
+      d.code === "eac" ? 0 : isSelectedCountry(d.code, d.name) ? 1 : 0.5,
+    getRadius: (d) =>
+      d.code === "eac" ? 0 : radius * 700 * Math.pow(d[activeCaseType.id], 0.3),
+    getFillColor: (d) =>
       d.code === "eac"
         ? 0
         : isSelectedCountry(d.code, d.name)
         ? activeCaseType.colorArray
-        : [220, 220, 220]
+        : [220, 220, 220],
   });
 
   return (
@@ -221,22 +261,28 @@ export default () => {
                   }}
                   filterable={false}
                   noResults={<MenuItem disabled={true} text="No results." />}
-                  onItemSelect={item => {
+                  onItemSelect={(item) => {
                     setActiveCaseType(item);
                   }}
                 >
                   <span className="dropdown-label">Visualize by</span>
-                  <Button text={activeCaseType.name} rightIcon="double-caret-vertical" />
+                  <Button
+                    text={activeCaseType.name}
+                    rightIcon="double-caret-vertical"
+                  />
                 </Select>
               </div>
             </div>
             <div className="map-container">
               <MapGL
                 {...viewport}
-                onViewportChange={viewport => setViewport(viewport)}
+                onViewportChange={(viewport) => setViewport(viewport)}
                 style={{ width: "100%", height: "100%" }}
                 mapStyle="mapbox://styles/mapbox/light-v9"
-                maxBounds={[[-180,-90], [180,90]]}
+                maxBounds={[
+                  [-180, -90],
+                  [180, 90],
+                ]}
                 accessToken={MAPBOX_ACCESS_TOKEN}
                 renderWorldCopies={false}
               >
@@ -251,7 +297,9 @@ export default () => {
             <>
               <section className={`section-numeral`}>
                 <Numbers eac={activeData[selectedCountryId]} />
-                {selectedCountryId === "eac" && <Table countries={activeData} />}
+                {selectedCountryId === "eac" && (
+                  <Table countries={activeData} />
+                )}
               </section>
               <section className="section-chart">
                 <Chart
@@ -264,7 +312,10 @@ export default () => {
               {selectedCountryId !== "eac" && (
                 <section className="section-numeral">
                   <h3 style={{ marginTop: 0 }}>Other countries</h3>
-                  <Table countries={activeData} selectedCountryId={selectedCountryId} />
+                  <Table
+                    countries={activeData}
+                    selectedCountryId={selectedCountryId}
+                  />
                 </section>
               )}
               <section style={{ padding: "10px" }}>

@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
 
 import Cases from "./Cases";
 import HeaderBranding from "./HeaderBranding";
@@ -9,14 +14,17 @@ import Loading from "./Loading";
 import Mobility from "./Mobility";
 import Capacity from "./Capacity";
 
-import {eacCountries} from "./util";
+import { eacCountries } from "./util";
+import ConfigurationProvider from "./ConfigurationProvider";
 
 const App = () => {
   const [dates, setDates] = useState([]);
   const [selectedDateIndex, setSelectedDateIndex] = useState(-1);
   const [selectedCountryId, setSelectedCountryId] = useState("eac");
   const [activeTab, setActiveTab] = useState(null);
-  const [countrySelectEntries, setCountrySelectEntries] = useState(eacCountries);
+  const [countrySelectEntries, setCountrySelectEntries] = useState(
+    eacCountries
+  );
   const [ready, setReady] = useState(false);
 
   // Cases Tab
@@ -29,7 +37,7 @@ const App = () => {
     indexedCaseData,
     setIndexedCaseData,
     caseDates,
-    setCaseDates
+    setCaseDates,
   };
 
   // Mobility tab
@@ -39,7 +47,7 @@ const App = () => {
     mobilityData,
     setMobilityData,
     mobilityDates,
-    setMobilityDates
+    setMobilityDates,
   };
 
   const stateValue = {
@@ -58,23 +66,36 @@ const App = () => {
 
     // Tab state
     cases,
-    mobility
+    mobility,
   };
 
   return (
     <div className="app-container">
-      <StateContext.Provider value={stateValue}>
-        <HeaderBranding />
-        <Router>
-          <Tabs />
-          <Switch>
-            <Route path="/cases" render={() => <Cases />} />
-            <Route path="/mobility" render={() => <Mobility />} />
-            <Route path="/capacity" render={() => <Capacity />} />
-            <Redirect exact from="/" to="/cases" />
-          </Switch>
-        </Router>
-      </StateContext.Provider>
+      <Router>
+        <Switch>
+          <Route path="/:code">
+            <ConfigurationProvider>
+              <StateContext.Provider value={stateValue}>
+                <HeaderBranding />
+                <Tabs />
+                <Switch>
+                  <Route path="/:code/cases">
+                    <Cases />
+                  </Route>
+                  <Route path="/:code/mobility">
+                    <Mobility />
+                  </Route>
+                  <Route path="/:code/capacity">
+                    <Capacity />
+                  </Route>
+                  <Redirect exact from="*" to="/:code/cases" />
+                </Switch>
+              </StateContext.Provider>
+            </ConfigurationProvider>
+          </Route>
+          <Redirect exact from="*" to="/dashboard/cases" />
+        </Switch>
+      </Router>
     </div>
   );
 };
