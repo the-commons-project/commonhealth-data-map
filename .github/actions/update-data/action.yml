@@ -1,0 +1,8 @@
+name: 'update-data'
+
+description: 'Updates data from live sources for the dashboard.'
+runs:
+  using: 'docker'
+  image: '../../../data-processing/Dockerfile'
+  args:
+    - /github/workspace/data-processing

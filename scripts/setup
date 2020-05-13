@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${CDM_DEBUG}" ]]; then
+    set -x
+fi
+
+function usage() {
+    echo -n \
+        "Usage: $(basename "$0")
+Attempts to setup the project's development environment.
+"
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ "${1:-}" = "--help" ]; then
+        usage
+    else
+        if ! command -v node >/dev/null ||
+                [ "$(node --version)" != "$(cat .nvmrc)" ]; then
+            echo "ERROR: Could not find a version of Node.js that matches .nvmrc."
+            echo
+            echo "Please run \`nvm install $(cat .nvmrc) && nvm use\` and try again."
+            exit 1
+        fi
+
+        ./scripts/update
+    fi
+fi

@@ -1,0 +1,77 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${CDM_DEBUG}" ]]; then
+    set -x
+fi
+
+DIR="$(dirname "$0")"
+
+function usage() {
+    echo -n \
+        "Usage: $(basename "$0")
+Generate the site!
+"
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ "${1:-}" = "--help" ]; then
+        usage
+    else
+        . "/usr/local/bin/run-build-functions.sh"
+
+        # Test and build React application
+        ./scripts/test
+        yarn build
+
+        ### Install dependencies ###
+
+        mkdir -p build-cache
+
+        # Install tippecanoe
+        if [ ! -d $NETLIFY_CACHE_DIR/tippecanoe-1.32.5 ]; then
+            wget -qO- https://github.com/mapbox/tippecanoe/archive/1.32.5.tar.gz |
+                tar xvz -C build-cache/
+            make -C build-cache/tippecanoe-1.32.5
+            cp -R build-cache/tippecanoe-1.32.5 $NETLIFY_CACHE_DIR/tippecanoe-1.32.5
+        fi
+
+        export PATH=$NETLIFY_CACHE_DIR/tippecanoe-1.32.5:$PATH
+
+        ### Build data ###
+
+        mkdir -p build/data
+        mkdir -p build/data/tiles
+        mkdir -p build/data/mobility
+        mkdir -p build/data/capacity
+        mkdir -p build/data/capacity/tiles
+
+        ## Cases data ##
+
+        cp "${DIR}/../data-processing/data/published/jhu-case-data.json" build/data/
+
+        ## Mobility data ##
+
+        cp "${DIR}/../data-processing/data/published/country_alpha_3_to_id.json" build/data/
+
+        cp "${DIR}/../data-processing/data/published/mobility-config.json" build/data/mobility/config.json
+        cp "${DIR}/../data-processing/data/published/google_mobility_data.json" build/data/mobility/data.json
+        cp "${DIR}/../data-processing/data/published/countries.geojson" build/data/countries.geojson
+        cp "${DIR}/../data-processing/data/published/countries.geojson" build-cache/
+
+        # Generate vector tiles
+        tippecanoe -f -pk --no-tile-compression -e build/data/tiles/country \
+            --maximum-zoom=8 --minimum-zoom=0 -l country \
+            build-cache/countries.geojson
+
+        ## Capacity data ##
+
+        cp "${DIR}/../data-processing/data/published/africa_health_facilities.geojson" build-cache/
+
+        # Generate vector tiles
+        tippecanoe -f -pk -r1 -pf --no-tile-compression -e build/data/capacity/tiles/facilities \
+            --maximum-zoom=12 --minimum-zoom=1 -l facilities \
+            build-cache/africa_health_facilities.geojson
+    fi
+fi

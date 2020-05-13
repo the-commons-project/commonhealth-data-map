@@ -1,3 +1,6 @@
+# data
+public/data
+
 # dependencies
 /node_modules
 
@@ -13,4 +16,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # build
-build
+build/
+.netlify-cache/
+
+# jupyter
+.ipynb_checkpoints/

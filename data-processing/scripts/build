@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${CDM_DEBUG}" ]]; then
+    set -x
+fi
+
+IMAGE_NAME=commonhealth_dashboard_dataproc
+
+function usage() {
+
+    echo -n \
+        "Usage: $(basename "$0")
+Setup project containers.
+"
+}
+
+function build_containers() {
+    echo "Building containers"
+    docker build -t ${IMAGE_NAME} -f Dockerfile .
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ "${1:-}" = "--help" ]; then
+        usage
+    else
+        build_containers
+    fi
+    exit
+fi

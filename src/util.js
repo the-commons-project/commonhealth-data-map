@@ -28,6 +28,22 @@ const formatNumber = value => {
   });
 };
 
+export const formatLegendNumber = (x, digits=2) => {
+    if (isNaN(x)) {
+        return 'N/A';
+    } else if (Number.isInteger(x)) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    } else {
+        return x.toFixed(digits);
+    }
+};
+
+export const tabCodes = {
+  cases: 'cases',
+  mobility: 'mobility',
+  capacity: 'capacity'
+};
+
 const eacCodes = [
   "eac",
   "burundi",
@@ -39,19 +55,19 @@ const eacCodes = [
 ];
 
 const eacCountries = {
-  eac: { name: "All EAC Countries", disabled: false },
-  burundi: { name: "Burundi", disabled: true },
-  kenya: { name: "Kenya", disabled: true },
-  rwanda: { name: "Rwanda", disabled: true },
-  "south-sudan": { name: "South Sudan", disabled: true },
-  tanzania: { name: "Tanzania", disabled: true },
-  uganda: { name: "Uganda", disabled: true }
+  eac: { name: "All EAC Countries", alpha3: 'EAC', disabled: false },
+  burundi: { name: "Burundi", alpha3: 'BDI', disabled: false },
+  kenya: { name: "Kenya", alpha3: 'KEN', disabled: false },
+  rwanda: { name: "Rwanda", alpha3: 'RWA', disabled: false },
+  "south-sudan": { name: "South Sudan", alpha3: 'SSD', disabled: false },
+  tanzania: { name: "Tanzania", alpha3: 'TZA', disabled: false },
+  uganda: { name: "Uganda", alpha3: 'UGA', disabled: false }
 };
 
 const caseTypes = [
   {
     id: "cases",
-    name: "Cases",
+    name: "Confirmed",
     colorHex: "#02AEEF",
     colorArray: [2, 174, 239]
   },
@@ -74,5 +90,40 @@ const caseTypes = [
     colorArray: [235, 27, 37]
   }
 ];
+
+export const changeDates = (
+  currentDates,
+  newDates,
+  currentSelectedDateIndex,
+  setDates,
+  setSelectedDateIndex
+) => {
+  // This is the version if we want to maintain dates between tabs.
+  // const currentDate = currentDates[currentSelectedDateIndex],
+  //       newDateIndex = newDates.indexOf(currentDate),
+  //       newSelectedDateIndex = newDateIndex == -1 ? newDates.length - 1 : newDateIndex;
+
+  // For now, just reset to the latest data date.
+  const newSelectedDateIndex = newDates.length - 1;
+
+  setDates(newDates);
+  setSelectedDateIndex(newSelectedDateIndex);
+};
+
+export const changeCountrySelectEntries = (
+  newCountrySelectEntries,
+  currentSelectedCountryId,
+  setCountrySelectEntries,
+  setSelectedCountryId
+) => {
+  if(!newCountrySelectEntries[currentSelectedCountryId]['disabled']) {
+    setCountrySelectEntries(newCountrySelectEntries);
+  } else {
+    // Reset the selected country to EAC. TODO: Make this more robust if we keep this
+    // selector around.
+    setSelectedCountryId('eac');
+    setCountrySelectEntries(newCountrySelectEntries);
+  }
+};
 
 export { abbreviateNumber, formatNumber, eacCodes, eacCountries, caseTypes };
