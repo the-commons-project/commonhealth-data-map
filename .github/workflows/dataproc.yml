@@ -16,19 +16,24 @@ jobs:
   publish:
     name: publish
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: data-processing
     steps:
       - uses: actions/checkout@v2
 
+      - name: Checkout master
+        uses: actions/checkout@v2
+        with:
+          ref: master
+          path: 'clone_dir'
+
       - name: Update data
         uses: ./.github/actions/update-data
+        with:
+          dataprocDirectory: /github/workspace/clone_dir/data-processing
 
       - name: Commit any data changes
         id: commit_changes
         run: |
-          ../.github/actions/scripts/commit-data-update-changes.sh
+          ./.github/actions/scripts/commit-data-update-changes.sh clone_dir data/update
 
       - name: Push data update to repository
         uses: ad-m/github-push-action@v0.5.0
@@ -36,4 +41,45 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: data/update
+          directory: clone_dir
           force: true
+
+      - name: Install JS Actions dependencies
+        if: steps.commit_changes.outputs.status == 'CHANGED' || steps.commit_changes.outputs.status == 'CHANGES_ALREADY_PUSHED'
+        run: |
+          pushd ./.github/actions/data-update-pr
+          npm ci
+          popd
+          pushd ./.github/actions/merge-pr
+          npm ci
+          popd
+      - name: Data Update Pull Request
+        id: pull-request
+        if: steps.commit_changes.outputs.status == 'CHANGED' || steps.commit_changes.outputs.status == 'CHANGES_ALREADY_PUSHED'
+        uses: ./.github/actions/data-update-pr
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          makeComment: ${{ steps.commit_changes.outputs.status == 'CHANGED' }}
+          dataUpdateBranch: azavea:data/update
+
+      - name: Wait for build to succeed
+        uses: fountainhead/action-wait-for-check@v1.0.0
+        id: wait-for-netlify
+        if: steps.commit_changes.outputs.status == 'CHANGED' || steps.commit_changes.outputs.status == 'CHANGES_ALREADY_PUSHED'
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Redirect rules
+          ref: data/update
+          timeoutSeconds: 1000
+
+      - name: Merge PR if passing Netlify
+        if: steps.wait-for-netlify.outputs.conclusion == 'success'
+        uses: ./.github/actions/merge-pr
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull_number: ${{ steps.pull-request.outputs.pull_number }}
+
+      - name: Fail if PR fails Netlify
+        if: steps.wait-for-netlify.outputs.conclusion == 'failure'
+        run:
+          exit 1

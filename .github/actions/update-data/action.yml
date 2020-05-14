@@ -1,8 +1,12 @@
 name: 'update-data'
 
-description: 'Updates data from live sources for the dashboard.'
+description: 'Updates data from live sources for the dashboards.'
+inputs:
+  dataprocDirectory:
+    description: Data Processing directory path
+    required: true
 runs:
   using: 'docker'
   image: '../../../data-processing/Dockerfile'
   args:
-    - /github/workspace/data-processing
+    - ${{ inputs.dataprocDirectory }}
