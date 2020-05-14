@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -10,7 +10,6 @@ import Cases from "./Cases";
 import HeaderBranding from "./HeaderBranding";
 import Tabs from "./Tabs";
 import StateContext from "./State";
-import Loading from "./Loading";
 import Mobility from "./Mobility";
 import Capacity from "./Capacity";
 

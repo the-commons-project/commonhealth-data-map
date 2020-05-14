@@ -37,8 +37,6 @@ const MAPBOX_ACCESS_TOKEN =
 export default () => {
   const config = useContext(ConfigurationContext);
 
-  console.log(config);
-
   const [viewport, setViewport] = useState({
     latitude: 0.27,
     longitude: 33.45,
@@ -48,9 +46,8 @@ export default () => {
   });
 
   const [activeCaseType, setActiveCaseType] = useState(caseTypes[0]);
-  const [radius, setRadius] = useState(50);
-
   const [dataLoaded, setDataLoaded] = useState(false);
+  const radius = 50;
 
   const {
     dates,

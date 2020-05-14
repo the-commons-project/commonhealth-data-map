@@ -1,15 +1,10 @@
-import React, { useContext, useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, { useContext, useState, useEffect, useMemo, useRef } from "react";
 import * as _ from "underscore";
-import MapGL, { CustomLayer, Layer, Source, MapContext } from "@urbica/react-map-gl";
-import { MapboxLayer } from "@deck.gl/mapbox";
-import { ScatterplotLayer } from "@deck.gl/layers";
-import { Button, Card, MenuItem, Icon, Elevation } from "@blueprintjs/core";
+import MapGL, { Layer, Source, MapContext } from "@urbica/react-map-gl";
+import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import Loading from "../Loading";
 
-import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-
-import "./index.css";
 import { loadConfig, mobilityLayerConfig, aggregationTypes } from "./config";
 import { getLayerPaint } from "./mapStyles";
 import PopupContent from "./PopupContent";
@@ -18,28 +13,31 @@ import Table from "./Table";
 import Chart from "./Chart";
 
 import {
-  eacCodes,
   eacCountries,
-  caseTypes,
   changeDates,
   tabCodes,
-  changeCountrySelectEntries
+  changeCountrySelectEntries,
 } from "../util";
+
+import "./index.css";
+import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
+
 import StateContext from "../State";
 
-const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
+const MAPBOX_ACCESS_TOKEN =
+  "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
 
 const boundarySource = {
   type: "vector",
   tiles: [window.location.origin + "/data/tiles/country/{z}/{x}/{y}.pbf"],
   minzoom: 0,
-  maxzoom: 8
+  maxzoom: 8,
 };
 
 const maskLayerSource = {
   id: "mask",
   type: "geojson",
-  data: "/eac-mask.json"
+  data: "/eac-mask.json",
 };
 
 const maskLayerStyle = {
@@ -49,8 +47,8 @@ const maskLayerStyle = {
   layout: {},
   paint: {
     "fill-color": "#000",
-    "fill-opacity": 0.45
-  }
+    "fill-opacity": 0.45,
+  },
 };
 
 export default () => {
@@ -69,7 +67,12 @@ export default () => {
     setReady,
     setCountrySelectEntries,
     setSelectedCountryId,
-    mobility: { mobilityData, setMobilityData, mobilityDates, setMobilityDates }
+    mobility: {
+      mobilityData,
+      setMobilityData,
+      mobilityDates,
+      setMobilityDates,
+    },
   } = useContext(StateContext);
 
   const [viewport, setViewport] = useState({
@@ -77,13 +80,16 @@ export default () => {
     longitude: 33.45,
     zoom: 4,
     bearing: 0,
-    pitch: 0
+    pitch: 0,
   });
 
   const [mapInitNeeded, setMapInitNeeded] = useState(true);
 
   const [selectedLayer, setSelectedLayer] = useState(
-    _.filter(Object.entries(mobilityLayerConfig), ([key, config]) => config.default)[0][0]
+    _.filter(
+      Object.entries(mobilityLayerConfig),
+      ([key, config]) => config.default
+    )[0][0]
   );
 
   const selectedLayerConfig = mobilityLayerConfig[selectedLayer];
@@ -97,12 +103,17 @@ export default () => {
 
   const selectedDate = dates[selectedDateIndex];
 
-  const chartTime = dataLoaded ? new Date(dates[selectedDateIndex]).getTime() : undefined;
+  const chartTime = dataLoaded
+    ? new Date(dates[selectedDateIndex]).getTime()
+    : undefined;
   const mapElement = useRef(null);
 
   const alpha3 = eacCountries[selectedCountryId].alpha3,
     countryIntId = dataLoaded ? codeToId[alpha3.toString()] : 0,
-    countryData = mobilityData && countryIntId in mobilityData ? mobilityData[countryIntId] : null;
+    countryData =
+      mobilityData && countryIntId in mobilityData
+        ? mobilityData[countryIntId]
+        : null;
 
   let currentBreaks =
     aggregationTypes[aggType].breaks && selectedLayer
@@ -116,10 +127,10 @@ export default () => {
   useEffect(() => {
     if (!dataLoaded) {
       Promise.all([
-        fetch("data/mobility/config.json").then(r => r.json()),
-        fetch("data/mobility/data.json").then(r => r.json()),
-        fetch("data/country_alpha_3_to_id.json").then(r => r.json())
-      ]).then(responses => {
+        fetch("data/mobility/config.json").then((r) => r.json()),
+        fetch("data/mobility/data.json").then((r) => r.json()),
+        fetch("data/country_alpha_3_to_id.json").then((r) => r.json()),
+      ]).then((responses) => {
         const [config, data, code2id] = responses;
         loadConfig(config);
         setMobilityData(data);
@@ -129,13 +140,19 @@ export default () => {
         setReady(true);
       });
     }
-  }, []);
+  }, [dataLoaded, setMobilityData, setMobilityDates, setReady]);
 
   // Setup tab data on mount and when data is loaded
   useEffect(() => {
     if (dataLoaded) {
       // set the date slider to the mobility data dates.
-      changeDates(dates, mobilityDates, selectedDateIndex, setDates, setSelectedDateIndex);
+      changeDates(
+        dates,
+        mobilityDates,
+        selectedDateIndex,
+        setDates,
+        setSelectedDateIndex
+      );
 
       // TODO: A better way of doing this if we keep the country select around.
       changeCountrySelectEntries(
@@ -145,7 +162,18 @@ export default () => {
         setSelectedCountryId
       );
     }
-  }, [activeTab, dataLoaded]);
+  }, [
+    activeTab,
+    dataLoaded,
+    dates,
+    mobilityDates,
+    selectedCountryId,
+    selectedDateIndex,
+    setCountrySelectEntries,
+    setDates,
+    setSelectedCountryId,
+    setSelectedDateIndex,
+  ]);
 
   const chartData = useMemo(() => {
     if (dataLoaded) {
@@ -157,12 +185,12 @@ export default () => {
         .sort((kv1, kv2) => (kv1[0] > kv1[0] ? 1 : -1))
         .map(([date, value]) => ({
           x: new Date(date).getTime(),
-          y: value
+          y: value,
         }));
     } else {
       return null;
     }
-  }, [selectedLayer, mobilityData, selectedCountryId, dataLoaded]);
+  }, [dataLoaded, selectedCountryId, codeToId, countryData, selectedLayer]);
 
   // Handle setting feature state based on selected layer.
   useEffect(() => {
@@ -178,11 +206,20 @@ export default () => {
         );
       });
     }
-  }, [selectedLayer, selectedDateIndex, mapInitNeeded]);
+  }, [
+    selectedLayer,
+    selectedDateIndex,
+    mapInitNeeded,
+    mobilityData,
+    selectedDate,
+  ]);
 
-  const mapInit = map => {
+  const mapInit = (map) => {
     if (mapInitNeeded) {
-      map.fitBounds([[24.12, -11.78], [41.89, 12.26]]);
+      map.fitBounds([
+        [24.12, -11.78],
+        [41.89, 12.26],
+      ]);
       setMapInitNeeded(false);
     }
   };
@@ -221,7 +258,10 @@ export default () => {
                   onClick={() => setSelectedLayer(key)}
                   active={selectedLayer === key}
                 >
-                  <div className="color-circle" style={{ backgroundColor: config.color }}></div>
+                  <div
+                    className="color-circle"
+                    style={{ backgroundColor: config.color }}
+                  ></div>
                   <strong>{config.label}</strong>
                 </Button>
               ))}
@@ -235,7 +275,7 @@ export default () => {
                     <span>
                       <MenuItem
                         onClick={handleClick}
-                        active={selectedLayer == layerId}
+                        active={selectedLayer === layerId}
                         key={layerId}
                         text={mobilityLayerConfig[layerId].label}
                       />
@@ -244,7 +284,7 @@ export default () => {
                 }}
                 filterable={false}
                 noResults={<MenuItem disabled={true} text="No results." />}
-                onItemSelect={item => {
+                onItemSelect={(item) => {
                   setSelectedLayer(item);
                 }}
               >
@@ -262,16 +302,19 @@ export default () => {
             <div className="map-container">
               <MapGL
                 {...viewport}
-                onViewportChange={viewport => setViewport(viewport)}
+                onViewportChange={(viewport) => setViewport(viewport)}
                 style={{ width: "100%", height: "100%" }}
                 mapStyle="mapbox://styles/mapbox/light-v9"
                 accessToken={MAPBOX_ACCESS_TOKEN}
                 renderWorldCopies={false}
-                maxBounds={[[-180,-90], [180,90]]}
+                maxBounds={[
+                  [-180, -90],
+                  [180, 90],
+                ]}
                 ref={mapElement}
               >
                 <MapContext.Consumer>
-                  {map => {
+                  {(map) => {
                     mapInitNeeded && mapInit(map);
                   }}
                 </MapContext.Consumer>
@@ -282,11 +325,14 @@ export default () => {
                   source="boundaries"
                   source-layer="country"
                   before="water-label"
-                  onHover={e => {
-                    setPopupDetails({ coords: e.lngLat, feature: e.features[0] });
+                  onHover={(e) => {
+                    setPopupDetails({
+                      coords: e.lngLat,
+                      feature: e.features[0],
+                    });
                     setPopupEnabled(true);
                   }}
-                  onLeave={e => {
+                  onLeave={(e) => {
                     setPopupEnabled(false);
                   }}
                   paint={getLayerPaint("country")(
@@ -305,15 +351,26 @@ export default () => {
                   source-layer="country"
                   before="water-label"
                   paint={{
-                    "line-width": ["interpolate", ["linear"], ["zoom"], 3, 0.5, 10, 3],
+                    "line-width": [
+                      "interpolate",
+                      ["linear"],
+                      ["zoom"],
+                      3,
+                      0.5,
+                      10,
+                      3,
+                    ],
                     "line-color": "#000",
-                    "line-opacity": 0.25
+                    "line-opacity": 0.25,
                   }}
                 />
                 <Source {...maskLayerSource} />
                 {popup}
                 <Layer {...maskLayerStyle} />
-                <Legend classBreaks={currentBreaks} selectedLayer={selectedLayer} />
+                <Legend
+                  classBreaks={currentBreaks}
+                  selectedLayer={selectedLayer}
+                />
               </MapGL>
             </div>
           </section>
@@ -326,14 +383,24 @@ export default () => {
                   <h3 className="mobility-data-not-available-header">
                     {eacCountries[selectedCountryId].name} data not available
                   </h3>
-                  <p>Try switching to a different country to view its mobility indicators</p>
-                  <h3 className="moblity-data-not-available-footer">Other countries</h3>
+                  <p>
+                    Try switching to a different country to view its mobility
+                    indicators
+                  </p>
+                  <h3 className="moblity-data-not-available-footer">
+                    Other countries
+                  </h3>
                 </>
               )}
               {countryDataAvailable && (
                 <div className="item">
-                  <div className="item-label">Compared to pre-COVID baseline</div>
-                  <div className="item-number" style={{ color: selectedLayerConfig.color }}>
+                  <div className="item-label">
+                    Compared to pre-COVID baseline
+                  </div>
+                  <div
+                    className="item-number"
+                    style={{ color: selectedLayerConfig.color }}
+                  >
                     {value}
                   </div>
                 </div>
@@ -353,7 +420,9 @@ export default () => {
                   color={selectedLayerConfig.color}
                   data={chartData}
                   date={chartTime}
-                  value={!!countryData ? countryData[selectedLayer][selectedDate] : 0}
+                  value={
+                    !!countryData ? countryData[selectedLayer][selectedDate] : 0
+                  }
                 />
               </section>
             )}
@@ -372,7 +441,9 @@ export default () => {
             <section style={{ padding: "0 10px 10px" }}>
               <div className="source">
                 <b>Source:</b>{" "}
-                <a href="https://www.google.com/covid19/mobility/">Google Mobility Data</a>
+                <a href="https://www.google.com/covid19/mobility/">
+                  Google Mobility Data
+                </a>
               </div>
             </section>
           </>

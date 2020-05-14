@@ -1,6 +1,6 @@
-import React, { useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import { DateInput } from "@blueprintjs/datetime";
-import { eacCodes, eacCountries } from "./util";
+import { eacCountries } from "./util";
 import { Select } from "@blueprintjs/select";
 import { Slider, Button, MenuItem } from "@blueprintjs/core";
 import { NavLink, useParams } from "react-router-dom";
@@ -65,7 +65,7 @@ export default () => {
               return (
                 <MenuItem
                   onClick={handleClick}
-                  active={selectedCountryId == item}
+                  active={selectedCountryId === item}
                   disabled={country.disabled}
                   key={item}
                   text={country.name}
