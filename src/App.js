@@ -87,12 +87,12 @@ const App = () => {
                   <Route path="/:code/capacity">
                     <Capacity />
                   </Route>
-                  <Redirect exact from="*" to="/:code/cases" />
+                  <Redirect from="/:code" to="/:code/cases" />
                 </Switch>
               </StateContext.Provider>
             </ConfigurationProvider>
           </Route>
-          <Redirect exact from="*" to="/dashboard/cases" />
+          <Redirect from="*" to="/dashboard/cases" />
         </Switch>
       </Router>
     </div>
