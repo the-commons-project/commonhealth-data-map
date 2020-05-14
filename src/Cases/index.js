@@ -8,11 +8,11 @@ import React, {
 import { MapboxLayer } from "@deck.gl/mapbox";
 import { ScatterplotLayer } from "@deck.gl/layers";
 import MapGL, { CustomLayer } from "@urbica/react-map-gl";
-import { Button, MenuItem, Icon } from "@blueprintjs/core";
+import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import groupBy from "lodash.groupby";
 import keyBy from "lodash.keyby";
-import { useParams } from "react-router-dom";
+import { ConfigurationContext } from "../ConfigurationProvider";
 
 import MaskLayer from "../MaskLayer";
 
@@ -35,6 +35,10 @@ const MAPBOX_ACCESS_TOKEN =
   "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
 
 export default () => {
+  const config = useContext(ConfigurationContext);
+
+  console.log(config);
+
   const [viewport, setViewport] = useState({
     latitude: 0.27,
     longitude: 33.45,
@@ -43,7 +47,6 @@ export default () => {
     pitch: 0,
   });
 
-  const [showTable, setShowTable] = useState(true);
   const [activeCaseType, setActiveCaseType] = useState(caseTypes[0]);
   const [radius, setRadius] = useState(50);
 
@@ -297,9 +300,10 @@ export default () => {
             <>
               <section className={`section-numeral`}>
                 <Numbers eac={activeData[selectedCountryId]} />
-                {selectedCountryId === "eac" && (
-                  <Table countries={activeData} />
-                )}
+                {config.features.exampleFeature &&
+                  selectedCountryId === "eac" && (
+                    <Table countries={activeData} />
+                  )}
               </section>
               <section className="section-chart">
                 <Chart

@@ -1,23 +1,18 @@
-import React from "react";
+import React, { useContext } from "react";
+import { ConfigurationContext } from "./ConfigurationProvider";
 
-class HeaderBranding extends React.Component {
-  render() {
-    return (
-      <header className="header-primary">
-        <div className="header-logo">
-          <img src="/eac-logo.png" alt="East African Community (EAC) logo" />
-        </div>
-        <div className="header-title">CommonHealth Data Map</div>
-        <div className="header-icons">
-          <img
-            title="Currently in development"
-            src="/icon-bars.svg"
-            alt="Menu"
-          />
-        </div>
-      </header>
-    );
-  }
-}
+export default () => {
+  const config = useContext(ConfigurationContext);
 
-export default HeaderBranding;
+  return (
+    <header className="header-primary">
+      <div className="header-logo">
+        <img src="/eac-logo.png" alt="East African Community (EAC) logo" />
+      </div>
+      <div className="header-title">{config.strings.headerText}</div>
+      <div className="header-icons">
+        <img title="Currently in development" src="/icon-bars.svg" alt="Menu" />
+      </div>
+    </header>
+  );
+};

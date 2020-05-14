@@ -1,9 +1,18 @@
 import React, { createContext, useMemo } from "react";
 import { useParams } from "react-router-dom";
 
-const configs = [
+// All feature flags are initialized here with default values
+// A config may override the value of a feature-flag
+const FEATURES = {
+  exampleFeature: false,
+};
+
+// Each config is identified by a code, which is provided via the URL
+// The config denoted as `default` will be loaded if the code does not match
+const CONFIGS = [
   {
     code: "dashboard",
+    default: true,
     assets: [
       {
         type: "logo",
@@ -18,12 +27,12 @@ const configs = [
         path: "/default-theme.css",
       },
     ],
-    strings: [
-      {
-        name: "header-text",
-        value: "CommonHealth Data Map",
-      },
-    ],
+    strings: {
+      headerText: "CommonHealth Data Map",
+    },
+    features: {
+      exampleFeature: false,
+    },
   },
   {
     code: "eac",
@@ -37,14 +46,22 @@ const configs = [
         path: "/eac-mask.json",
       },
     ],
-    strings: [
-      {
-        name: "header-text",
-        value: "East-African Community",
-      },
-    ],
+    strings: {
+      headerText: "East-African Community",
+    },
+    features: {
+      exampleFeature: true,
+    },
   },
 ];
+
+const DEFAULT_CONFIG = CONFIGS.find((c) => c.default);
+
+export const ConfigurationContext = createContext(DEFAULT_CONFIG);
+
+if (!DEFAULT_CONFIG) {
+  throw new Error("No default configuration provided.");
+}
 
 const DynamicStyle = ({ path }) => (
   <link rel="stylesheet" type="text/css" href={path} />
@@ -53,28 +70,22 @@ const DynamicStyle = ({ path }) => (
 export default ({ children }) => {
   const { code } = useParams();
 
-  const maybeConfig = useMemo(() => configs.find((c) => c.code === code), [
-    code,
-  ]);
+  const config = useMemo(() => {
+    const match = CONFIGS.find((c) => c.code === code) || DEFAULT_CONFIG;
+    return { ...match, features: { ...FEATURES, ...match.features } };
+  }, [code]);
 
   const maybeStyles = useMemo(
-    () => maybeConfig?.assets?.filter((a) => a.type === "style"),
-    [maybeConfig]
+    () => config.assets.filter((a) => a.type === "style"),
+    [config]
   );
 
-  const MaybeContext = useMemo(
-    () => maybeConfig && createContext(maybeConfig),
-    [maybeConfig]
-  );
-
-  return MaybeContext ? (
-    <MaybeContext.Provider>
+  return (
+    <ConfigurationContext.Provider value={config}>
       {maybeStyles.map((a, idx) => (
         <DynamicStyle path={a.path} key={idx} />
       ))}
       {children}
-    </MaybeContext.Provider>
-  ) : (
-    <>{children}</>
+    </ConfigurationContext.Provider>
   );
 };
