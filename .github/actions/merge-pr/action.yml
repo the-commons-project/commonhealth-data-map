@@ -1,0 +1,16 @@
+name: 'Merge Pull Request'
+description: 'Merge a pull request.'
+inputs:
+  token:
+    description: The GitHub token to use for making API requests.
+    required: true
+  pull_number:
+    description: The pull request number.
+    required: true
+  owner:
+    description: The name of the Repository owner.
+  repo:
+    description: The name of the GitHub repository for the PR.
+runs:
+  using: 'node12'
+  main: 'index.js'
