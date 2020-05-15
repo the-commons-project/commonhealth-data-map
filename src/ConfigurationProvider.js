@@ -35,6 +35,13 @@ const CONFIGS = [
       exampleFeature: false,
     },
     defaults: {
+      viewport:  {
+        latitude: 0.0,
+        longitude: 0.0,
+        zoom: 1,
+        bearing: 0,
+        pitch: 0,
+      },
       // TODO: Handle countries better.
       country: 'global',
       countries: {
@@ -59,8 +66,16 @@ const CONFIGS = [
     },
     features: {
       exampleFeature: true,
+      maskFeature: true
     },
     defaults: {
+      viewport:  {
+        latitude: 0.27,
+        longitude: 33.45,
+        zoom: 4,
+        bearing: 0,
+        pitch: 0,
+      },
       country: 'eac',
       countries: eacCountries
     }

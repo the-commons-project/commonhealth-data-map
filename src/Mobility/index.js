@@ -78,13 +78,7 @@ export default () => {
     },
   } = useContext(StateContext);
 
-  const [viewport, setViewport] = useState({
-    latitude: 0.27,
-    longitude: 33.45,
-    zoom: 4,
-    bearing: 0,
-    pitch: 0,
-  });
+  const [viewport, setViewport] = useState(config.defaults.viewport);
 
   const [mapInitNeeded, setMapInitNeeded] = useState(true);
 
@@ -222,10 +216,6 @@ export default () => {
 
   const mapInit = (map) => {
     if (mapInitNeeded) {
-      map.fitBounds([
-        [24.12, -11.78],
-        [41.89, 12.26],
-      ]);
       setMapInitNeeded(false);
     }
   };

@@ -61,6 +61,8 @@ const popLayer = {
 };
 
 export default () => {
+  const config = useContext(ConfigurationContext);
+
   const [popLayerEnabled, setPopLayerEnabled] = useState(true);
 
   const [facilityLayerEnabled, setFacilityLayerEnabled] = useState(true);
@@ -72,13 +74,7 @@ export default () => {
   });
   const [popupLatLng, setPopupLatLng] = useState({ lat: 0, lng: 0 });
 
-  const [viewport, setViewport] = useState({
-    latitude: 0.27,
-    longitude: 33.45,
-    zoom: 4,
-    bearing: 0,
-    pitch: 0
-  });
+  const [viewport, setViewport] = useState(config.defaults.viewport);
 
   return (
     <div className="map-container">
