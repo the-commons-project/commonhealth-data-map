@@ -1,10 +1,15 @@
 import React, { createContext, useMemo } from "react";
 import { useParams } from "react-router-dom";
+import { eacCountries } from "./util";
 
 // All feature flags are initialized here with default values
 // A config may override the value of a feature-flag
 const FEATURES = {
   exampleFeature: false,
+
+  // TODO: These features are a for-now hack; to be replaced.
+  maskFeature: false,
+  tableFeature: true
 };
 
 // Each config is identified by a code, which is provided via the URL
@@ -32,7 +37,22 @@ const CONFIGS = [
     },
     features: {
       exampleFeature: false,
+      tableFeature: false
     },
+    defaults: {
+      viewport:  {
+        latitude: 0.0,
+        longitude: 0.0,
+        zoom: 1,
+        bearing: 0,
+        pitch: 0,
+      },
+      // TODO: Handle countries better.
+      country: 'global',
+      countries: {
+        global: { name: "Global", alpha3: 'GLB', disabled: false, hasFlag: false }
+      }
+    }
   },
   {
     code: "eac",
@@ -51,7 +71,19 @@ const CONFIGS = [
     },
     features: {
       exampleFeature: true,
+      maskFeature: true
     },
+    defaults: {
+      viewport:  {
+        latitude: 0.27,
+        longitude: 33.45,
+        zoom: 4,
+        bearing: 0,
+        pitch: 0,
+      },
+      country: 'eac',
+      countries: eacCountries
+    }
   },
 ];
 

@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 import { DateInput } from "@blueprintjs/datetime";
-import { eacCountries } from "./util";
 import { Select } from "@blueprintjs/select";
 import { Slider, Button, MenuItem } from "@blueprintjs/core";
 import { NavLink, useParams } from "react-router-dom";
@@ -45,6 +44,8 @@ export default () => {
     setSelectedCountryId(id);
   };
 
+  const selectedCountry = countrySelectEntries[selectedCountryId];
+
   return (
     <header className="header-secondary">
       <nav className="header-tabs">
@@ -61,6 +62,7 @@ export default () => {
             items={Object.keys(countrySelectEntries)}
             popoverProps={{ minimal: true }}
             itemRenderer={(item, { handleClick, modifiers }) => {
+              if(!(item in countrySelectEntries)) { return null; }
               const country = countrySelectEntries[item];
               return (
                 <MenuItem
@@ -81,14 +83,14 @@ export default () => {
               rightIcon="double-caret-vertical"
               className="country-select-button"
             >
-              {selectedCountryId !== "eac" && (
+              {selectedCountry.hasFlag && (
                 <img
                   className="table-icon"
                   src={`/flag-${selectedCountryId}.png`}
-                  alt={`Flag for ${eacCountries[selectedCountryId].name}`}
+                  alt={`Flag for ${selectedCountry.name}`}
                 />
               )}
-              <span>{eacCountries[selectedCountryId].name}</span>
+              <span>{selectedCountry.name}</span>
             </Button>
           </Select>
         </div>

@@ -12,8 +12,9 @@ import Legend from "./Legend";
 import Table from "./Table";
 import Chart from "./Chart";
 
+import MaskLayer from "../MaskLayer";
+
 import {
-  eacCountries,
   changeDates,
   tabCodes,
   changeCountrySelectEntries,
@@ -21,8 +22,10 @@ import {
 
 import "./index.css";
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 import StateContext from "../State";
+import { ConfigurationContext } from "../ConfigurationProvider";
 
 const MAPBOX_ACCESS_TOKEN =
   "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
@@ -34,27 +37,12 @@ const boundarySource = {
   maxzoom: 8,
 };
 
-const maskLayerSource = {
-  id: "mask",
-  type: "geojson",
-  data: "/eac-mask.json",
-};
-
-const maskLayerStyle = {
-  id: "mask",
-  type: "fill",
-  source: "mask",
-  layout: {},
-  paint: {
-    "fill-color": "#000",
-    "fill-opacity": 0.45,
-  },
-};
-
 export default () => {
   // TODO: If implementing multiple aggregation types,
   // use this from State.
   const aggType = "country";
+
+  const config = useContext(ConfigurationContext);
 
   const {
     dates,
@@ -65,6 +53,7 @@ export default () => {
     setSelectedDateIndex,
     selectedCountryId,
     setReady,
+    countrySelectEntries,
     setCountrySelectEntries,
     setSelectedCountryId,
     mobility: {
@@ -75,13 +64,7 @@ export default () => {
     },
   } = useContext(StateContext);
 
-  const [viewport, setViewport] = useState({
-    latitude: 0.27,
-    longitude: 33.45,
-    zoom: 4,
-    bearing: 0,
-    pitch: 0,
-  });
+  const [viewport, setViewport] = useState(config.defaults.viewport);
 
   const [mapInitNeeded, setMapInitNeeded] = useState(true);
 
@@ -108,7 +91,7 @@ export default () => {
     : undefined;
   const mapElement = useRef(null);
 
-  const alpha3 = eacCountries[selectedCountryId].alpha3,
+  const alpha3 = countrySelectEntries[selectedCountryId].alpha3,
     countryIntId = dataLoaded ? codeToId[alpha3.toString()] : 0,
     countryData =
       mobilityData && countryIntId in mobilityData
@@ -127,9 +110,9 @@ export default () => {
   useEffect(() => {
     if (!dataLoaded) {
       Promise.all([
-        fetch("data/mobility/config.json").then((r) => r.json()),
-        fetch("data/mobility/data.json").then((r) => r.json()),
-        fetch("data/country_alpha_3_to_id.json").then((r) => r.json()),
+        fetch("/data/mobility/config.json").then((r) => r.json()),
+        fetch("/data/mobility/data.json").then((r) => r.json()),
+        fetch("/data/country_alpha_3_to_id.json").then((r) => r.json()),
       ]).then((responses) => {
         const [config, data, code2id] = responses;
         loadConfig(config);
@@ -156,28 +139,18 @@ export default () => {
 
       // TODO: A better way of doing this if we keep the country select around.
       changeCountrySelectEntries(
-        eacCountries,
+        config.defaults.countries,
         selectedCountryId,
         setCountrySelectEntries,
-        setSelectedCountryId
+        setSelectedCountryId,
+        config.defaults.country
       );
     }
-  }, [
-    activeTab,
-    dataLoaded,
-    dates,
-    mobilityDates,
-    selectedCountryId,
-    selectedDateIndex,
-    setCountrySelectEntries,
-    setDates,
-    setSelectedCountryId,
-    setSelectedDateIndex,
-  ]);
+  }, [activeTab, dataLoaded]);
 
   const chartData = useMemo(() => {
     if (dataLoaded) {
-      const alpha3 = eacCountries[selectedCountryId].alpha3,
+      const alpha3 = countrySelectEntries[selectedCountryId].alpha3,
         countryId = codeToId[alpha3],
         dataByDate = !!countryData ? countryData[selectedLayer] : {};
 
@@ -218,10 +191,6 @@ export default () => {
 
   const mapInit = (map) => {
     if (mapInitNeeded) {
-      map.fitBounds([
-        [24.12, -11.78],
-        [41.89, 12.26],
-      ]);
       setMapInitNeeded(false);
     }
   };
@@ -366,9 +335,8 @@ export default () => {
                     "line-opacity": 0.25,
                   }}
                 />
-                <Source {...maskLayerSource} />
                 {popup}
-                <Layer {...maskLayerStyle} />
+                { config.features.maskFeature && <MaskLayer /> }
                 <Legend
                   classBreaks={currentBreaks}
                   selectedLayer={selectedLayer}
@@ -383,7 +351,7 @@ export default () => {
               {!countryDataAvailable && (
                 <>
                   <h3 className="mobility-data-not-available-header">
-                    {eacCountries[selectedCountryId].name} data not available
+                    {countrySelectEntries[selectedCountryId].name} data not available
                   </h3>
                   <p>
                     Try switching to a different country to view its mobility

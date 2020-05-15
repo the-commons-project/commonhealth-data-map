@@ -12,11 +12,11 @@ import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import groupBy from "lodash.groupby";
 import keyBy from "lodash.keyby";
-import { ConfigurationContext } from "../ConfigurationProvider";
 
 import MaskLayer from "../MaskLayer";
 
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 import {
   eacCodes,
@@ -30,6 +30,7 @@ import Chart from "./Chart";
 import Numbers from "./Numbers";
 import Table from "./Table";
 import StateContext from "../State";
+import { ConfigurationContext } from "../ConfigurationProvider";
 
 const MAPBOX_ACCESS_TOKEN =
   "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
@@ -37,13 +38,7 @@ const MAPBOX_ACCESS_TOKEN =
 export default () => {
   const config = useContext(ConfigurationContext);
 
-  const [viewport, setViewport] = useState({
-    latitude: 0.27,
-    longitude: 33.45,
-    zoom: 4,
-    bearing: 0,
-    pitch: 0,
-  });
+  const [viewport, setViewport] = useState(config.defaults.viewport);
 
   const [activeCaseType, setActiveCaseType] = useState(caseTypes[0]);
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -112,24 +107,14 @@ export default () => {
 
       // All eac countries are selectable.
       changeCountrySelectEntries(
-        eacCountries,
+        config.defaults.countries,
         selectedCountryId,
         setCountrySelectEntries,
-        setSelectedCountryId
+        setSelectedCountryId,
+        config.defaults.country
       );
     }
-  }, [
-    activeTab,
-    caseDates,
-    dataLoaded,
-    dates,
-    selectedCountryId,
-    selectedDateIndex,
-    setCountrySelectEntries,
-    setDates,
-    setSelectedCountryId,
-    setSelectedDateIndex,
-  ]);
+  }, [activeTab, dataLoaded]);
 
   const activeData = dataLoaded
     ? indexedCaseData[dates[selectedDateIndex]]
@@ -142,8 +127,9 @@ export default () => {
   const isSelectedCountry = useCallback(
     (countryCode, countryName) => {
       return (
-        selectedCountryId === countryCode ||
-        (selectedCountryId === "eac" && eacCodes.includes(countryCode))
+          selectedCountryId === countryCode ||
+              selectedCountryId === 'global' ||
+              (selectedCountryId === "eac" && eacCodes.includes(countryCode))
       );
     },
     [selectedCountryId]
@@ -180,17 +166,15 @@ export default () => {
   );
 
   scatterPlotLayer.setProps({
-    data: caseData.filter((d) => d.date === dates[selectedDateIndex]),
+    data: caseData.filter((d) => !!d.coordinates && d.date === dates[selectedDateIndex]),
     getLineWidth: (d) =>
-      d.code === "eac" ? 0 : isSelectedCountry(d.code, d.name) ? 1 : 0.5,
+          isSelectedCountry(d.code, d.name) ? 1 : 0.5,
     getRadius: (d) =>
-      d.code === "eac" ? 0 : radius * 700 * Math.pow(d[activeCaseType.id], 0.3),
+          radius * 700 * Math.pow(d[activeCaseType.id], 0.3),
     getFillColor: (d) =>
-      d.code === "eac"
-        ? 0
-        : isSelectedCountry(d.code, d.name)
-        ? activeCaseType.colorArray
-        : [220, 220, 220],
+          isSelectedCountry(d.code, d.name)
+          ? activeCaseType.colorArray
+          : [220, 220, 220],
   });
 
   return (
@@ -286,7 +270,7 @@ export default () => {
                 renderWorldCopies={false}
               >
                 <CustomLayer layer={scatterPlotLayer} />
-                <MaskLayer />
+                { config.features.maskFeature && <MaskLayer /> }
               </MapGL>
             </div>
           </section>
@@ -296,7 +280,7 @@ export default () => {
             <>
               <section className={`section-numeral`}>
                 <Numbers eac={activeData[selectedCountryId]} />
-                {config.features.exampleFeature &&
+                {config.features.tableFeature &&
                   selectedCountryId === "eac" && (
                     <Table countries={activeData} />
                   )}
@@ -309,7 +293,8 @@ export default () => {
                   indicator={activeData[selectedCountryId][activeCaseType.id]}
                 />
               </section>
-              {selectedCountryId !== "eac" && (
+              {config.features.tableFeature &&
+               selectedCountryId !== "eac" && (
                 <section className="section-numeral">
                   <h3 style={{ marginTop: 0 }}>Other countries</h3>
                   <Table
@@ -318,11 +303,6 @@ export default () => {
                   />
                 </section>
               )}
-              <section style={{ padding: "10px" }}>
-                <div className="source">
-                  <b>Source:</b> EAC Secretariat
-                </div>
-              </section>
             </>
           )}
         </div>
