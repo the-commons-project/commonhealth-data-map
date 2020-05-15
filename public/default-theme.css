@@ -1,8 +1,109 @@
 .header-primary {
   height: 66px;
-  background-color: #ccc;
+  background: none;
   display: flex;
   align-items: center;
   padding: 10px;
   z-index: 10;
+  color: #555;
+  font-family: "proxima-nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.header-secondary {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ececec;
+  z-index: 10;
+  box-shadow: none;
+}
+
+.header-logo {
+  height: 28px;
+}
+
+.header-icons img {
+  height: 18px;
+  filter: none;
+  position: relative;
+  top: 3px;
+  cursor: not-allowed !important;
+}
+
+.header-title {
+  font-size: 20px;
+  color: #182195;
+  flex: 1;
+  font-weight: 600px;
+  text-transform: uppercase;
+}
+
+.header-icons {
+  color: #555;
+}
+
+.header-tabs a,
+.header-tabs span {
+  color: #182195;
+  height: 52px;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.header-tabs a.active {
+  font-weight: 500;
+  border-bottom: 3px solid #182195;
+  color: #182195;
+}
+
+.background-color-cases {
+  background-color: #166ab3;
+}
+
+.background-color-active {
+  background-color: #e99a58;
+}
+
+.background-color-recovered {
+  background-color: #17a163;
+}
+
+.background-color-deaths {
+  background-color: #e30b1c;
+}
+
+.color-cases {
+  color: #166ab3;
+}
+
+.color-active {
+  color: #e99a58;
+}
+
+.color-recovered {
+  color: #17a163;
+}
+
+.color-deaths {
+  color: #e30b1c;
+}
+
+.type-buttons .bp3-button {
+  margin-right: 2px;
+  border: 1px solid rgba(0, 0, 0, 0);
+}
+
+.type-buttons .bp3-button.bp3-minimal.bp3-active {
+  border-radius: 999px;
+  border: 1px solid #dfdfdf;
+  background: #f2f2f2;
+}
+
+.type-buttons .bp3-button.bp3-minimal:hover {
+  border-radius: 999px;
+  background: #f2f2f2;
+  border: 1px solid rgba(0, 0, 0, 0);
 }

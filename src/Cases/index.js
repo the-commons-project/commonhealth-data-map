@@ -199,7 +199,6 @@ export default () => {
         <div className="primary">
           <section className="section-map">
             <div className="type-toggle">
-              <h2 className="type-heading">Map</h2>
               <div className="type-buttons">
                 <Button
                   minimal={true}
@@ -209,7 +208,7 @@ export default () => {
                   }}
                 >
                   <div className="color-circle background-color-cases"></div>
-                  Confirmed
+                  Total cases
                 </Button>
                 <Button
                   minimal={true}

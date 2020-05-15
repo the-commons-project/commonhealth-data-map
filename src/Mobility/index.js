@@ -181,12 +181,14 @@ export default () => {
         countryId = codeToId[alpha3],
         dataByDate = !!countryData ? countryData[selectedLayer] : {};
 
-      return Object.entries(dataByDate)
-        .sort((kv1, kv2) => (kv1[0] > kv1[0] ? 1 : -1))
-        .map(([date, value]) => ({
-          x: new Date(date).getTime(),
-          y: value,
-        }));
+      return (
+        Object.entries(dataByDate)
+          // .sort((kv1, kv2) => (kv1[0] > kv1[0] ? 1 : -1))
+          .map(([date, value]) => ({
+            x: new Date(date).getTime(),
+            y: value,
+          }))
+      );
     } else {
       return null;
     }

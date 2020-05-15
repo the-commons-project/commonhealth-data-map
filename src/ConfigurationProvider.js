@@ -16,7 +16,7 @@ const CONFIGS = [
     assets: [
       {
         type: "logo",
-        path: "/eac-logo.png",
+        path: "/tcp-logo.png",
       },
       {
         type: "map-mask",
@@ -28,7 +28,7 @@ const CONFIGS = [
       },
     ],
     strings: {
-      headerText: "CommonHealth Data Map",
+      headerText: "",
     },
     features: {
       exampleFeature: false,
