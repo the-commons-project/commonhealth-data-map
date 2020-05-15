@@ -290,7 +290,7 @@ export default () => {
             <>
               <section className={`section-numeral`}>
                 <Numbers eac={activeData[selectedCountryId]} />
-                {config.features.exampleFeature &&
+                {config.features.tableFeature &&
                   selectedCountryId === "eac" && (
                     <Table countries={activeData} />
                   )}
@@ -303,7 +303,8 @@ export default () => {
                   indicator={activeData[selectedCountryId][activeCaseType.id]}
                 />
               </section>
-              {selectedCountryId !== "eac" && (
+              {config.features.tableFeature &&
+               selectedCountryId !== "eac" && (
                 <section className="section-numeral">
                   <h3 style={{ marginTop: 0 }}>Other countries</h3>
                   <Table

@@ -9,6 +9,7 @@ const FEATURES = {
 
   // TODO: These features are a for-now hack; to be replaced.
   maskFeature: false,
+  tableFeature: true
 };
 
 // Each config is identified by a code, which is provided via the URL
@@ -36,6 +37,7 @@ const CONFIGS = [
     },
     features: {
       exampleFeature: false,
+      tableFeature: false
     },
     defaults: {
       viewport:  {
