@@ -23,6 +23,22 @@ const abbreviateNumber = value => {
 };
 
 const formatNumber = value => {
+  // For numbers in the millions, shorten with 'M' abbreviation
+  if(Math.abs(Number(value)) >= 1.0e+6) {
+    return (Math.abs(Number(value)) / 1.0e+6).toLocaleString(navigator.language, {
+      maximumSignificantDigits: 3,
+      minimumFractionDigits: 3
+    }) + "M";
+  }
+
+  // For numbers over 100,000, shorten to decimal with 'K' abbreviation
+  if(Math.abs(Number(value)) >= 1.0e+5) {
+    return (Math.abs(Number(value)) / 1.0e+3).toLocaleString(navigator.language, {
+      maximumSignificantDigits: 4,
+      minimumFractionDigits: 1
+    }) + "K";
+  }
+
   return value.toLocaleString(navigator.language, {
     minimumFractionDigits: 0
   });
