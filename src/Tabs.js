@@ -1,9 +1,9 @@
-import React, { useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import { DateInput } from "@blueprintjs/datetime";
-import { eacCodes, eacCountries } from "./util";
+import { eacCountries } from "./util";
 import { Select } from "@blueprintjs/select";
 import { Slider, Button, MenuItem } from "@blueprintjs/core";
-import { NavLink } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import moment from "moment";
 
 import StateContext from "./State";
@@ -25,8 +25,10 @@ export default () => {
     setSelectedDateIndex,
     selectedCountryId,
     setSelectedCountryId,
-    countrySelectEntries
+    countrySelectEntries,
   } = useContext(StateContext);
+
+  const { code } = useParams();
 
   const onDateIndexChange = (i) => {
     setSelectedDateIndex(+i);
@@ -47,9 +49,9 @@ export default () => {
     <header className="header-secondary">
       <nav className="header-tabs">
         <div>
-          <NavLink to="/cases">Confirmed Cases</NavLink>
-          <NavLink to="/mobility">Mobility</NavLink>
-          <NavLink to="/capacity">Capacity</NavLink>
+          <NavLink to={`/${code}/cases`}>Confirmed Cases</NavLink>
+          <NavLink to={`/${code}/mobility`}>Mobility</NavLink>
+          <NavLink to={`/${code}/capacity`}>Capacity</NavLink>
           <span>Symptoms</span>
         </div>
       </nav>
@@ -63,7 +65,7 @@ export default () => {
               return (
                 <MenuItem
                   onClick={handleClick}
-                  active={selectedCountryId == item}
+                  active={selectedCountryId === item}
                   disabled={country.disabled}
                   key={item}
                   text={country.name}
@@ -75,7 +77,10 @@ export default () => {
             noResults={<MenuItem disabled={true} text="No results." />}
             onItemSelect={onCountryIdChange}
           >
-            <Button rightIcon="double-caret-vertical" className="country-select-button">
+            <Button
+              rightIcon="double-caret-vertical"
+              className="country-select-button"
+            >
               {selectedCountryId !== "eac" && (
                 <img
                   className="table-icon"
@@ -94,7 +99,9 @@ export default () => {
                 popoverProps={{ minimal: true }}
                 formatDate={(date) => formatDateReadable(date)}
                 minDate={new Date(moment(dates[0], "YYYY-MM-DD"))}
-                maxDate={new Date(moment(dates[dates.length - 1], "YYYY-MM-DD"))}
+                maxDate={
+                  new Date(moment(dates[dates.length - 1], "YYYY-MM-DD"))
+                }
                 onChange={onDateChange}
                 parseDate={(str) => new Date(str)}
                 canClearSelection={false}

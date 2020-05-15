@@ -1649,6 +1649,11 @@
   dependencies:
     "@babel/runtime" "^7.0.0"
 
+"@simbathesailor/use-what-changed@^0.1.21":
+  version "0.1.21"
+  resolved "https://registry.yarnpkg.com/@simbathesailor/use-what-changed/-/use-what-changed-0.1.21.tgz#d7491262ee75a8d72610c7000e27f51b8a64f602"
+  integrity sha512-qKICSqI9KcVfjezIuFpj6EJdNtof5RgIqjv8yALqo07TzswXfGQM6iiJGymoopVcOPJDN8EXOuKKgBsVO+d3sw==
+
 "@svgr/babel-plugin-add-jsx-attribute@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@svgr/babel-plugin-add-jsx-attribute/-/babel-plugin-add-jsx-attribute-4.2.0.tgz#dadcb6218503532d6884b210e7f3c502caaa44b1"
