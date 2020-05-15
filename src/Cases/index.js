@@ -16,6 +16,7 @@ import keyBy from "lodash.keyby";
 import MaskLayer from "../MaskLayer";
 
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 import {
   eacCodes,

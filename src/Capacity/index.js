@@ -9,6 +9,7 @@ import MapGL, {
 
 import CapacityLayerControl from "./CapacityLayerControl.jsx";
 import "./index.css";
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 import MaskLayer from "../MaskLayer";
 import { ConfigurationContext } from "../ConfigurationProvider";

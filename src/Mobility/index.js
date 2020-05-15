@@ -22,6 +22,7 @@ import {
 
 import "./index.css";
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 import StateContext from "../State";
 import { ConfigurationContext } from "../ConfigurationProvider";
