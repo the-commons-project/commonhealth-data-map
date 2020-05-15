@@ -110,9 +110,9 @@ export default () => {
   useEffect(() => {
     if (!dataLoaded) {
       Promise.all([
-        fetch("data/mobility/config.json").then((r) => r.json()),
-        fetch("data/mobility/data.json").then((r) => r.json()),
-        fetch("data/country_alpha_3_to_id.json").then((r) => r.json()),
+        fetch("/data/mobility/config.json").then((r) => r.json()),
+        fetch("/data/mobility/data.json").then((r) => r.json()),
+        fetch("/data/country_alpha_3_to_id.json").then((r) => r.json()),
       ]).then((responses) => {
         const [config, data, code2id] = responses;
         loadConfig(config);
