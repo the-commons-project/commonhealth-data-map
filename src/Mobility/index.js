@@ -13,7 +13,6 @@ import Table from "./Table";
 import Chart from "./Chart";
 
 import {
-  eacCountries,
   changeDates,
   tabCodes,
   changeCountrySelectEntries,
@@ -23,6 +22,7 @@ import "./index.css";
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 
 import StateContext from "../State";
+import { ConfigurationContext } from "../ConfigurationProvider";
 
 const MAPBOX_ACCESS_TOKEN =
   "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
@@ -56,6 +56,8 @@ export default () => {
   // use this from State.
   const aggType = "country";
 
+  const config = useContext(ConfigurationContext);
+
   const {
     dates,
     setDates,
@@ -65,6 +67,7 @@ export default () => {
     setSelectedDateIndex,
     selectedCountryId,
     setReady,
+    countrySelectEntries,
     setCountrySelectEntries,
     setSelectedCountryId,
     mobility: {
@@ -108,7 +111,7 @@ export default () => {
     : undefined;
   const mapElement = useRef(null);
 
-  const alpha3 = eacCountries[selectedCountryId].alpha3,
+  const alpha3 = countrySelectEntries[selectedCountryId].alpha3,
     countryIntId = dataLoaded ? codeToId[alpha3.toString()] : 0,
     countryData =
       mobilityData && countryIntId in mobilityData
@@ -156,10 +159,11 @@ export default () => {
 
       // TODO: A better way of doing this if we keep the country select around.
       changeCountrySelectEntries(
-        eacCountries,
+        config.defaults.countries,
         selectedCountryId,
         setCountrySelectEntries,
-        setSelectedCountryId
+        setSelectedCountryId,
+        config.defaults.country
       );
     }
   }, [
@@ -177,7 +181,7 @@ export default () => {
 
   const chartData = useMemo(() => {
     if (dataLoaded) {
-      const alpha3 = eacCountries[selectedCountryId].alpha3,
+      const alpha3 = countrySelectEntries[selectedCountryId].alpha3,
         countryId = codeToId[alpha3],
         dataByDate = !!countryData ? countryData[selectedLayer] : {};
 
@@ -383,7 +387,7 @@ export default () => {
               {!countryDataAvailable && (
                 <>
                   <h3 className="mobility-data-not-available-header">
-                    {eacCountries[selectedCountryId].name} data not available
+                    {countrySelectEntries[selectedCountryId].name} data not available
                   </h3>
                   <p>
                     Try switching to a different country to view its mobility

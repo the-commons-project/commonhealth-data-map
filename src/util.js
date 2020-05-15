@@ -48,7 +48,7 @@ export const formatLegendNumber = (x, digits=2) => {
     if (isNaN(x)) {
         return 'N/A';
     } else if (Number.isInteger(x)) {
-        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     } else {
         return x.toFixed(digits);
     }
@@ -71,13 +71,13 @@ const eacCodes = [
 ];
 
 const eacCountries = {
-  eac: { name: "All EAC Countries", alpha3: 'EAC', disabled: false },
-  burundi: { name: "Burundi", alpha3: 'BDI', disabled: false },
-  kenya: { name: "Kenya", alpha3: 'KEN', disabled: false },
-  rwanda: { name: "Rwanda", alpha3: 'RWA', disabled: false },
-  "south-sudan": { name: "South Sudan", alpha3: 'SSD', disabled: false },
-  tanzania: { name: "Tanzania", alpha3: 'TZA', disabled: false },
-  uganda: { name: "Uganda", alpha3: 'UGA', disabled: false }
+  eac: { name: "All EAC Countries", alpha3: 'EAC', disabled: false, hasFlag: false },
+  burundi: { name: "Burundi", alpha3: 'BDI', disabled: false, hasFlag: true },
+  kenya: { name: "Kenya", alpha3: 'KEN', disabled: false, hasFlag: true },
+  rwanda: { name: "Rwanda", alpha3: 'RWA', disabled: false, hasFlag: true },
+  "south-sudan": { name: "South Sudan", alpha3: 'SSD', disabled: false, hasFlag: true },
+  tanzania: { name: "Tanzania", alpha3: 'TZA', disabled: false, hasFlag: true },
+  uganda: { name: "Uganda", alpha3: 'UGA', disabled: false, hasFlag: true }
 };
 
 const caseTypes = [
@@ -130,16 +130,14 @@ export const changeCountrySelectEntries = (
   newCountrySelectEntries,
   currentSelectedCountryId,
   setCountrySelectEntries,
-  setSelectedCountryId
+  setSelectedCountryId,
+  defaultCountry
 ) => {
-  if(!newCountrySelectEntries[currentSelectedCountryId]['disabled']) {
-    setCountrySelectEntries(newCountrySelectEntries);
-  } else {
-    // Reset the selected country to EAC. TODO: Make this more robust if we keep this
-    // selector around.
-    setSelectedCountryId('eac');
-    setCountrySelectEntries(newCountrySelectEntries);
+  if(!(currentSelectedCountryId in newCountrySelectEntries) ||
+     newCountrySelectEntries[currentSelectedCountryId]['disabled']) {
+    setSelectedCountryId(defaultCountry);
   }
+  setCountrySelectEntries(newCountrySelectEntries);
 };
 
 export { abbreviateNumber, formatNumber, eacCodes, eacCountries, caseTypes };

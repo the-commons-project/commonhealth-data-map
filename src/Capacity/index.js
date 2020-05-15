@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import MapGL, {
   Popup,
   Layer,
@@ -11,6 +11,7 @@ import CapacityLayerControl from "./CapacityLayerControl.jsx";
 import "./index.css";
 
 import MaskLayer from "../MaskLayer";
+import { ConfigurationContext } from "../ConfigurationProvider";
 
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";

@@ -12,7 +12,6 @@ import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import groupBy from "lodash.groupby";
 import keyBy from "lodash.keyby";
-import { ConfigurationContext } from "../ConfigurationProvider";
 
 import MaskLayer from "../MaskLayer";
 
@@ -30,6 +29,7 @@ import Chart from "./Chart";
 import Numbers from "./Numbers";
 import Table from "./Table";
 import StateContext from "../State";
+import { ConfigurationContext } from "../ConfigurationProvider";
 
 const MAPBOX_ACCESS_TOKEN =
   "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
@@ -112,10 +112,11 @@ export default () => {
 
       // All eac countries are selectable.
       changeCountrySelectEntries(
-        eacCountries,
+        config.defaults.countries,
         selectedCountryId,
         setCountrySelectEntries,
-        setSelectedCountryId
+        setSelectedCountryId,
+        config.defaults.country
       );
     }
   }, [
@@ -142,8 +143,9 @@ export default () => {
   const isSelectedCountry = useCallback(
     (countryCode, countryName) => {
       return (
-        selectedCountryId === countryCode ||
-        (selectedCountryId === "eac" && eacCodes.includes(countryCode))
+          selectedCountryId === countryCode ||
+              selectedCountryId === 'global' ||
+              (selectedCountryId === "eac" && eacCodes.includes(countryCode))
       );
     },
     [selectedCountryId]

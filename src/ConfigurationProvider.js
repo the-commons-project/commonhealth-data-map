@@ -1,5 +1,6 @@
 import React, { createContext, useMemo } from "react";
 import { useParams } from "react-router-dom";
+import { eacCountries } from "./util";
 
 // All feature flags are initialized here with default values
 // A config may override the value of a feature-flag
@@ -33,6 +34,13 @@ const CONFIGS = [
     features: {
       exampleFeature: false,
     },
+    defaults: {
+      // TODO: Handle countries better.
+      country: 'global',
+      countries: {
+        global: { name: "Global", alpha3: 'GLB', disabled: false, hasFlag: false }
+      }
+    }
   },
   {
     code: "eac",
@@ -52,6 +60,10 @@ const CONFIGS = [
     features: {
       exampleFeature: true,
     },
+    defaults: {
+      country: 'eac',
+      countries: eacCountries
+    }
   },
 ];
 
