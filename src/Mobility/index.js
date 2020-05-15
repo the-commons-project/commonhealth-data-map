@@ -12,6 +12,8 @@ import Legend from "./Legend";
 import Table from "./Table";
 import Chart from "./Chart";
 
+import MaskLayer from "../MaskLayer";
+
 import {
   changeDates,
   tabCodes,
@@ -32,23 +34,6 @@ const boundarySource = {
   tiles: [window.location.origin + "/data/tiles/country/{z}/{x}/{y}.pbf"],
   minzoom: 0,
   maxzoom: 8,
-};
-
-const maskLayerSource = {
-  id: "mask",
-  type: "geojson",
-  data: "/eac-mask.json",
-};
-
-const maskLayerStyle = {
-  id: "mask",
-  type: "fill",
-  source: "mask",
-  layout: {},
-  paint: {
-    "fill-color": "#000",
-    "fill-opacity": 0.45,
-  },
 };
 
 export default () => {
@@ -360,9 +345,8 @@ export default () => {
                     "line-opacity": 0.25,
                   }}
                 />
-                <Source {...maskLayerSource} />
                 {popup}
-                <Layer {...maskLayerStyle} />
+                { config.features.maskFeature && <MaskLayer /> }
                 <Legend
                   classBreaks={currentBreaks}
                   selectedLayer={selectedLayer}

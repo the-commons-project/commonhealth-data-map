@@ -6,6 +6,9 @@ import { eacCountries } from "./util";
 // A config may override the value of a feature-flag
 const FEATURES = {
   exampleFeature: false,
+
+  // TODO: These features are a for-now hack; to be replaced.
+  maskFeature: false,
 };
 
 // Each config is identified by a code, which is provided via the URL

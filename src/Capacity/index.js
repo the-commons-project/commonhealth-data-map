@@ -142,7 +142,7 @@ export default () => {
           )}
 
         {/* Mask Layer */}
-        <MaskLayer />
+        { config.features.maskFeature && <MaskLayer /> }
 
         {/* Layer Control */}
         <CapacityLayerControl

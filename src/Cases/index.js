@@ -280,7 +280,7 @@ export default () => {
                 renderWorldCopies={false}
               >
                 <CustomLayer layer={scatterPlotLayer} />
-                <MaskLayer />
+                { config.features.maskFeature && <MaskLayer /> }
               </MapGL>
             </div>
           </section>
