@@ -182,17 +182,15 @@ export default () => {
   );
 
   scatterPlotLayer.setProps({
-    data: caseData.filter((d) => d.date === dates[selectedDateIndex]),
+    data: caseData.filter((d) => !!d.coordinates && d.date === dates[selectedDateIndex]),
     getLineWidth: (d) =>
-      d.code === "eac" ? 0 : isSelectedCountry(d.code, d.name) ? 1 : 0.5,
+          isSelectedCountry(d.code, d.name) ? 1 : 0.5,
     getRadius: (d) =>
-      d.code === "eac" ? 0 : radius * 700 * Math.pow(d[activeCaseType.id], 0.3),
+          radius * 700 * Math.pow(d[activeCaseType.id], 0.3),
     getFillColor: (d) =>
-      d.code === "eac"
-        ? 0
-        : isSelectedCountry(d.code, d.name)
-        ? activeCaseType.colorArray
-        : [220, 220, 220],
+          isSelectedCountry(d.code, d.name)
+          ? activeCaseType.colorArray
+          : [220, 220, 220],
   });
 
   return (
