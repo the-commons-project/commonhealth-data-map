@@ -114,18 +114,7 @@ export default () => {
         config.defaults.country
       );
     }
-  }, [
-    activeTab,
-    caseDates,
-    dataLoaded,
-    dates,
-    selectedCountryId,
-    selectedDateIndex,
-    setCountrySelectEntries,
-    setDates,
-    setSelectedCountryId,
-    setSelectedDateIndex,
-  ]);
+  }, [activeTab, dataLoaded]);
 
   const activeData = dataLoaded
     ? indexedCaseData[dates[selectedDateIndex]]
