@@ -314,11 +314,6 @@ export default () => {
                   />
                 </section>
               )}
-              <section style={{ padding: "10px" }}>
-                <div className="source">
-                  <b>Source:</b> EAC Secretariat
-                </div>
-              </section>
             </>
           )}
         </div>
