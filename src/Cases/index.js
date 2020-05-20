@@ -16,7 +16,8 @@ import keyBy from "lodash.keyby";
 import MaskLayer from "../MaskLayer";
 
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-import 'mapbox-gl/dist/mapbox-gl.css';
+import "mapbox-gl/dist/mapbox-gl.css";
+import mapStyle from "../mapStyle.json";
 
 import {
   eacCodes,
@@ -114,7 +115,20 @@ export default () => {
         config.defaults.country
       );
     }
-  }, [activeTab, dataLoaded]);
+  }, [
+    activeTab,
+    caseDates,
+    config.defaults.countries,
+    config.defaults.country,
+    dataLoaded,
+    dates,
+    selectedCountryId,
+    selectedDateIndex,
+    setCountrySelectEntries,
+    setDates,
+    setSelectedCountryId,
+    setSelectedDateIndex,
+  ]);
 
   const activeData = dataLoaded
     ? indexedCaseData[dates[selectedDateIndex]]
@@ -127,9 +141,9 @@ export default () => {
   const isSelectedCountry = useCallback(
     (countryCode, countryName) => {
       return (
-          selectedCountryId === countryCode ||
-              selectedCountryId === 'global' ||
-              (selectedCountryId === "eac" && eacCodes.includes(countryCode))
+        selectedCountryId === countryCode ||
+        selectedCountryId === "global" ||
+        (selectedCountryId === "eac" && eacCodes.includes(countryCode))
       );
     },
     [selectedCountryId]
@@ -166,15 +180,15 @@ export default () => {
   );
 
   scatterPlotLayer.setProps({
-    data: caseData.filter((d) => !!d.coordinates && d.date === dates[selectedDateIndex]),
-    getLineWidth: (d) =>
-          isSelectedCountry(d.code, d.name) ? 1 : 0.5,
-    getRadius: (d) =>
-          radius * 700 * Math.pow(d[activeCaseType.id], 0.3),
+    data: caseData.filter(
+      (d) => !!d.coordinates && d.date === dates[selectedDateIndex]
+    ),
+    getLineWidth: (d) => (isSelectedCountry(d.code, d.name) ? 1 : 0.5),
+    getRadius: (d) => radius * 700 * Math.pow(d[activeCaseType.id], 0.3),
     getFillColor: (d) =>
-          isSelectedCountry(d.code, d.name)
-          ? activeCaseType.colorArray
-          : [220, 220, 220],
+      isSelectedCountry(d.code, d.name)
+        ? activeCaseType.colorArray
+        : [220, 220, 220],
   });
 
   return (
@@ -261,7 +275,7 @@ export default () => {
                 {...viewport}
                 onViewportChange={(viewport) => setViewport(viewport)}
                 style={{ width: "100%", height: "100%" }}
-                mapStyle="mapbox://styles/mapbox/light-v9"
+                mapStyle={mapStyle}
                 maxBounds={[
                   [-180, -90],
                   [180, 90],
@@ -270,7 +284,7 @@ export default () => {
                 renderWorldCopies={false}
               >
                 <CustomLayer layer={scatterPlotLayer} />
-                { config.features.maskFeature && <MaskLayer /> }
+                {config.features.maskFeature && <MaskLayer />}
               </MapGL>
             </div>
           </section>
@@ -293,8 +307,7 @@ export default () => {
                   indicator={activeData[selectedCountryId][activeCaseType.id]}
                 />
               </section>
-              {config.features.tableFeature &&
-               selectedCountryId !== "eac" && (
+              {config.features.tableFeature && selectedCountryId !== "eac" && (
                 <section className="section-numeral">
                   <h3 style={{ marginTop: 0 }}>Other countries</h3>
                   <Table

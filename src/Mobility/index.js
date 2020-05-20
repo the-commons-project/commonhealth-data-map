@@ -14,18 +14,16 @@ import Chart from "./Chart";
 
 import MaskLayer from "../MaskLayer";
 
-import {
-  changeDates,
-  tabCodes,
-  changeCountrySelectEntries,
-} from "../util";
+import { changeDates, tabCodes, changeCountrySelectEntries } from "../util";
 
 import "./index.css";
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-import 'mapbox-gl/dist/mapbox-gl.css';
+import "mapbox-gl/dist/mapbox-gl.css";
 
 import StateContext from "../State";
 import { ConfigurationContext } from "../ConfigurationProvider";
+
+import mapStyle from "../mapStyle.json";
 
 const MAPBOX_ACCESS_TOKEN =
   "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
@@ -146,7 +144,20 @@ export default () => {
         config.defaults.country
       );
     }
-  }, [activeTab, dataLoaded]);
+  }, [
+    activeTab,
+    config.defaults.countries,
+    config.defaults.country,
+    dataLoaded,
+    dates,
+    mobilityDates,
+    selectedCountryId,
+    selectedDateIndex,
+    setCountrySelectEntries,
+    setDates,
+    setSelectedCountryId,
+    setSelectedDateIndex,
+  ]);
 
   const chartData = useMemo(() => {
     if (dataLoaded) {
@@ -165,7 +176,14 @@ export default () => {
     } else {
       return null;
     }
-  }, [dataLoaded, selectedCountryId, codeToId, countryData, selectedLayer]);
+  }, [
+    dataLoaded,
+    countrySelectEntries,
+    selectedCountryId,
+    codeToId,
+    countryData,
+    selectedLayer,
+  ]);
 
   // Handle setting feature state based on selected layer.
   useEffect(() => {
@@ -275,7 +293,7 @@ export default () => {
                 {...viewport}
                 onViewportChange={(viewport) => setViewport(viewport)}
                 style={{ width: "100%", height: "100%" }}
-                mapStyle="mapbox://styles/mapbox/light-v9"
+                mapStyle={mapStyle}
                 accessToken={MAPBOX_ACCESS_TOKEN}
                 renderWorldCopies={false}
                 maxBounds={[
@@ -336,7 +354,7 @@ export default () => {
                   }}
                 />
                 {popup}
-                { config.features.maskFeature && <MaskLayer /> }
+                {config.features.maskFeature && <MaskLayer />}
                 <Legend
                   classBreaks={currentBreaks}
                   selectedLayer={selectedLayer}
@@ -351,7 +369,8 @@ export default () => {
               {!countryDataAvailable && (
                 <>
                   <h3 className="mobility-data-not-available-header">
-                    {countrySelectEntries[selectedCountryId].name} data not available
+                    {countrySelectEntries[selectedCountryId].name} data not
+                    available
                   </h3>
                   <p>
                     Try switching to a different country to view its mobility
