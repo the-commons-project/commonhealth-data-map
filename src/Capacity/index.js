@@ -4,7 +4,7 @@ import MapGL, {
   Layer,
   Source,
   MapContext,
-  AttributionControl,
+  NavigationControl,
 } from "@urbica/react-map-gl";
 
 import CapacityLayerControl from "./CapacityLayerControl.jsx";
