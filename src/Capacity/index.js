@@ -17,9 +17,6 @@ import StateContext from "../State";
 import { ConfigurationContext } from "../ConfigurationProvider";
 import mapStyle from "../mapStyle.json";
 
-const MAPBOX_ACCESS_TOKEN =
-  "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
-
 const facilityLayerSource = {
   id: "facilities",
   type: "vector",
@@ -115,7 +112,6 @@ export default () => {
         onViewportChange={(viewport) => setViewport(viewport)}
         style={{ width: "100%", height: "100%" }}
         mapStyle={mapStyle}
-        accessToken={MAPBOX_ACCESS_TOKEN}
         renderWorldCopies={false}
         maxBounds={[
           [-180, -90],

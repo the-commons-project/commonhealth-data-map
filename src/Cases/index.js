@@ -36,9 +36,6 @@ import Table from "./Table";
 import StateContext from "../State";
 import { ConfigurationContext } from "../ConfigurationProvider";
 
-const MAPBOX_ACCESS_TOKEN =
-  "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
-
 export default () => {
   const config = useContext(ConfigurationContext);
 
@@ -343,7 +340,6 @@ export default () => {
                   [-180, -90],
                   [180, 90],
                 ]}
-                accessToken={MAPBOX_ACCESS_TOKEN}
                 renderWorldCopies={false}
                 ref={mapElement}
               >
