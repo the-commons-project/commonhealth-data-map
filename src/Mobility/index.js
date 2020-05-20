@@ -1,9 +1,12 @@
 import React, { useContext, useState, useEffect, useMemo, useRef } from "react";
 import * as _ from "underscore";
-import MapGL, { Layer, Source, MapContext } from "@urbica/react-map-gl";
+import MapGL, { Layer, Source, MapContext, NavigationControl } from "@urbica/react-map-gl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import Loading from "../Loading";
+
+import MaskLayer from "../MaskLayer";
+import CountriesLayer from "../CountriesLayer";
 
 import { loadConfig, mobilityLayerConfig, aggregationTypes } from "./config";
 import { getLayerPaint } from "./mapStyles";
@@ -11,8 +14,6 @@ import PopupContent from "./PopupContent";
 import Legend from "./Legend";
 import Table from "./Table";
 import Chart from "./Chart";
-
-import MaskLayer from "../MaskLayer";
 
 import { changeDates, tabCodes, changeCountrySelectEntries } from "../util";
 
@@ -43,12 +44,16 @@ export default () => {
   const config = useContext(ConfigurationContext);
 
   const {
+    setLastUpdatedDate,
+    setSources,
+    setDateSelectorEnabled,
     dates,
     setDates,
     activeTab,
     setActiveTab,
     selectedDateIndex,
     setSelectedDateIndex,
+    setCountrySelectorEnabled,
     selectedCountryId,
     setReady,
     countrySelectEntries,
@@ -82,11 +87,10 @@ export default () => {
   const [popupEnabled, setPopupEnabled] = useState(false);
   const [popupDetails, setPopupDetails] = useState();
 
-  const selectedDate = dates[selectedDateIndex];
+  const selectedDate = !!mobilityDates && mobilityDates[mobilityDates.length - 1] < dates[selectedDateIndex] ? (
+    mobilityDates[mobilityDates.length - 1]) : dates[selectedDateIndex];
 
-  const chartTime = dataLoaded
-    ? new Date(dates[selectedDateIndex]).getTime()
-    : undefined;
+  const chartTime = dataLoaded ? new Date(selectedDate).getTime() : undefined;
   const mapElement = useRef(null);
 
   const alpha3 = countrySelectEntries[selectedCountryId].alpha3,
@@ -101,8 +105,23 @@ export default () => {
       ? aggregationTypes[aggType].breaks[selectedLayer]
       : null;
 
-  // Set the active tab.
-  useEffect(() => setActiveTab(tabCodes.mobility), [setActiveTab]);
+  // On tab activation.
+  useEffect(() => {
+    setDateSelectorEnabled(true);
+    setCountrySelectorEnabled(true);
+
+
+    setActiveTab(tabCodes.mobility);
+    if(!!mobilityDates) {
+      setLastUpdatedDate(mobilityDates[mobilityDates.length - 1]);
+    } else {
+      setLastUpdatedDate(null);
+    }
+    setSources([
+      <a href="https://www.google.com/covid19/mobility/">Google Mobility Data</a>
+    ]);
+
+  }, [setActiveTab]);
 
   // Fetch all the data for this tab.
   useEffect(() => {
@@ -116,6 +135,7 @@ export default () => {
         loadConfig(config);
         setMobilityData(data);
         setMobilityDates(config.dates);
+        setLastUpdatedDate(config.dates[config.dates.length - 1]);
         setCodeToId(code2id);
         setDataLoaded(true);
         setReady(true);
@@ -207,13 +227,26 @@ export default () => {
     selectedDate,
   ]);
 
+  // Zoom to selected country, if the selected country has bounds defined.
+  useEffect(() => {
+    if(!mapInitNeeded) {
+      if(!!config.defaults.countries[selectedCountryId].bounds) {
+        mapElement.current._map.fitBounds(config.defaults.countries[selectedCountryId].bounds, {
+          padding: 20
+        });
+      }
+    }
+  }, [selectedCountryId]);
+
   const mapInit = (map) => {
     if (mapInitNeeded) {
       setMapInitNeeded(false);
     }
   };
 
-  const popup = popupEnabled ? (
+  const popup = popupEnabled && (
+    popupDetails.feature && !!mobilityData[popupDetails.feature.id.toString()]
+  ) && (
     <PopupContent
       feature={popupDetails.feature}
       coordinates={popupDetails.coords}
@@ -221,7 +254,7 @@ export default () => {
       aggType={aggType}
       selectedDate={selectedDate}
     />
-  ) : null;
+  );
 
   const countryDataAvailable = !!mobilityData && countryIntId in mobilityData;
 
@@ -261,7 +294,7 @@ export default () => {
                 popoverProps={{ minimal: true }}
                 itemRenderer={(layerId, { handleClick, modifiers }) => {
                   return (
-                    <span>
+                    <span key={layerId}>
                       <MenuItem
                         onClick={handleClick}
                         active={selectedLayer === layerId}
@@ -354,11 +387,13 @@ export default () => {
                   }}
                 />
                 {popup}
-                {config.features.maskFeature && <MaskLayer />}
+                {config.features.maskFeature && <MaskLayer opacity={0.45}/>}
+                <CountriesLayer />
                 <Legend
                   classBreaks={currentBreaks}
                   selectedLayer={selectedLayer}
                 />
+                <NavigationControl showZoom position='top-right' />
               </MapGL>
             </div>
           </section>
@@ -427,14 +462,6 @@ export default () => {
                 />
               </section>
             )}
-            <section style={{ padding: "0 10px 10px" }}>
-              <div className="source">
-                <b>Source:</b>{" "}
-                <a href="https://www.google.com/covid19/mobility/">
-                  Google Mobility Data
-                </a>
-              </div>
-            </section>
           </>
         </div>
       </main>

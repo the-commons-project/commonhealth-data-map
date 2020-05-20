@@ -19,9 +19,11 @@ const formatDateReadable = (date) => {
 
 export default () => {
   const {
+    dateSelectorEnabled,
     dates,
     selectedDateIndex,
     setSelectedDateIndex,
+    countrySelectorEnabled,
     selectedCountryId,
     setSelectedCountryId,
     countrySelectEntries,
@@ -57,76 +59,82 @@ export default () => {
         </div>
       </nav>
       <div className="header-controls">
-        <div className="controls-country">
-          <Select
-            items={Object.keys(countrySelectEntries)}
-            popoverProps={{ minimal: true }}
-            itemRenderer={(item, { handleClick, modifiers }) => {
-              if(!(item in countrySelectEntries)) { return null; }
-              const country = countrySelectEntries[item];
-              return (
-                <MenuItem
-                  onClick={handleClick}
-                  active={selectedCountryId === item}
-                  disabled={country.disabled}
-                  key={item}
-                  text={country.name}
-                  className="country-select-item"
-                />
-              );
-            }}
-            filterable={false}
-            noResults={<MenuItem disabled={true} text="No results." />}
-            onItemSelect={onCountryIdChange}
-          >
-            <Button
-              rightIcon="double-caret-vertical"
-              className="country-select-button"
+        {countrySelectorEnabled && (
+          <div className="controls-country">
+            <Select
+              items={Object.keys(countrySelectEntries)}
+              popoverProps={{ minimal: true }}
+              itemRenderer={(item, { handleClick, modifiers }) => {
+                if(!(item in countrySelectEntries)) { return null; }
+                const country = countrySelectEntries[item];
+                return (
+                  <MenuItem
+                    onClick={handleClick}
+                    active={selectedCountryId === item}
+                    disabled={country.disabled}
+                    key={item}
+                    text={country.name}
+                    className="country-select-item"
+                  />
+                );
+              }}
+              filterable={false}
+              noResults={<MenuItem disabled={true} text="No results." />}
+              onItemSelect={onCountryIdChange}
             >
-              {selectedCountry.hasFlag && (
-                <img
-                  className="table-icon"
-                  src={`/flag-${selectedCountryId}.png`}
-                  alt={`Flag for ${selectedCountry.name}`}
+              <Button
+                rightIcon="double-caret-vertical"
+                className="country-select-button"
+              >
+                {selectedCountry.hasFlag && (
+                  <img
+                    className="table-icon"
+                    src={`/flag-${selectedCountryId}.png`}
+                    alt={`Flag for ${selectedCountry.name}`}
+                  />
+                )}
+                <span>{selectedCountry.name}</span>
+              </Button>
+            </Select>
+          </div>
+        )}
+        {dateSelectorEnabled && (
+          <>
+            <div className="controls-date">
+              <div className="slider">
+                {!!dates.length && selectedDateIndex >= 0 && (
+                  <DateInput
+                    popoverProps={{ minimal: true }}
+                    formatDate={(date) => formatDateReadable(date)}
+                    minDate={new Date(moment(dates[0], "YYYY-MM-DD"))}
+                    maxDate={
+                                                             new Date(moment(dates[dates.length - 1], "YYYY-MM-DD"))
+                    }
+                    onChange={onDateChange}
+                    parseDate={(str) => new Date(str)}
+                    canClearSelection={false}
+                    placeholder={"Select date"}
+                    value={new Date(moment(dates[selectedDateIndex]))}
+                  />
+                )}
+              </div>
+            </div>
+            <div className="date-slider">
+              {!!dates.length && selectedDateIndex >= 0 && (
+                <Slider
+                  min={0}
+                  max={dates.length - 1}
+                  onChange={onDateIndexChange}
+                  value={selectedDateIndex}
+                  labelRenderer={(i) => formatDateReadable(dates[i])}
+                  stepSize={1}
+                  labelStepSize={(dates.length - 1) / 2 || 1}
+                  showTrackFill={false}
                 />
               )}
-              <span>{selectedCountry.name}</span>
-            </Button>
-          </Select>
-        </div>
-        <div className="controls-date">
-          <div className="slider">
-            {!!dates.length && selectedDateIndex >= 0 && (
-              <DateInput
-                popoverProps={{ minimal: true }}
-                formatDate={(date) => formatDateReadable(date)}
-                minDate={new Date(moment(dates[0], "YYYY-MM-DD"))}
-                maxDate={
-                  new Date(moment(dates[dates.length - 1], "YYYY-MM-DD"))
-                }
-                onChange={onDateChange}
-                parseDate={(str) => new Date(str)}
-                canClearSelection={false}
-                placeholder={"Select date"}
-                value={new Date(moment(dates[selectedDateIndex]))}
-              />
-            )}
-          </div>
-        </div>
-        <div className="date-slider">
-          {!!dates.length && selectedDateIndex >= 0 && (
-            <Slider
-              min={0}
-              max={dates.length - 1}
-              onChange={onDateIndexChange}
-              value={selectedDateIndex}
-              labelRenderer={(i) => formatDateReadable(dates[i])}
-              stepSize={1}
-              labelStepSize={(dates.length - 1) / 2 || 1}
-              showTrackFill={false}
-            />
-          )}
-        </div>
+            </div>
+          </>
+        )}
       </div>
     </header>
   );
