@@ -4,7 +4,7 @@ import MapGL, {
   Layer,
   Source,
   MapContext,
-  AttributionControl
+  NavigationControl
 } from "@urbica/react-map-gl";
 
 import CapacityLayerControl from "./CapacityLayerControl.jsx";
@@ -164,7 +164,11 @@ export default () => {
           )}
 
         {/* Mask Layer */}
-        { config.features.maskFeature && <MaskLayer /> }
+        { config.features.maskFeature && (
+          !!config.defaults.baseMask ?
+            <MaskLayer region={config.defaults.baseMask}/>
+          : null
+        ) }
 
         {/* Layer Control */}
         <CapacityLayerControl
@@ -172,11 +176,7 @@ export default () => {
           setPopLayerStatus={setPopLayerEnabled}
           setFacilityLayerStatus={setFacilityLayerEnabled}
         ></CapacityLayerControl>
-        <AttributionControl
-          compact={false}
-          position='bottom-right'
-          customAttribution='Health Facilities via <a href="https://www.who.int/malaria/areas/surveillance/public-sector-health-facilities-ss-africa/en/">World Health Organization</a>. Population via <a href="https://www.worldpop.org/">WorldPop</a>'
-        />
+        <NavigationControl showZoom position='top-right' />
       </MapGL>
     </div>
   );

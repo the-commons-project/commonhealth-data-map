@@ -1,9 +1,12 @@
 import React, { useContext, useState, useEffect, useMemo, useRef } from "react";
 import * as _ from "underscore";
-import MapGL, { Layer, Source, MapContext } from "@urbica/react-map-gl";
+import MapGL, { Layer, Source, MapContext, NavigationControl } from "@urbica/react-map-gl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import Loading from "../Loading";
+
+import MaskLayer from "../MaskLayer";
+import CountriesLayer from "../CountriesLayer";
 
 import { loadConfig, mobilityLayerConfig, aggregationTypes } from "./config";
 import { getLayerPaint } from "./mapStyles";
@@ -11,8 +14,6 @@ import PopupContent from "./PopupContent";
 import Legend from "./Legend";
 import Table from "./Table";
 import Chart from "./Chart";
-
-import MaskLayer from "../MaskLayer";
 
 import {
   changeDates,
@@ -208,13 +209,26 @@ export default () => {
     selectedDate,
   ]);
 
+  // Zoom to selected country, if the selected country has bounds defined.
+  useEffect(() => {
+    if(!mapInitNeeded) {
+      if(!!config.defaults.countries[selectedCountryId].bounds) {
+        mapElement.current._map.fitBounds(config.defaults.countries[selectedCountryId].bounds, {
+          padding: 20
+        });
+      }
+    }
+  }, [selectedCountryId]);
+
   const mapInit = (map) => {
     if (mapInitNeeded) {
       setMapInitNeeded(false);
     }
   };
 
-  const popup = popupEnabled ? (
+  const popup = popupEnabled && (
+    popupDetails.feature && !!mobilityData[popupDetails.feature.id.toString()]
+  ) && (
     <PopupContent
       feature={popupDetails.feature}
       coordinates={popupDetails.coords}
@@ -222,7 +236,7 @@ export default () => {
       aggType={aggType}
       selectedDate={selectedDate}
     />
-  ) : null;
+  );
 
   const countryDataAvailable = !!mobilityData && countryIntId in mobilityData;
 
@@ -262,7 +276,7 @@ export default () => {
                 popoverProps={{ minimal: true }}
                 itemRenderer={(layerId, { handleClick, modifiers }) => {
                   return (
-                    <span>
+                    <span key={layerId}>
                       <MenuItem
                         onClick={handleClick}
                         active={selectedLayer === layerId}
@@ -355,11 +369,13 @@ export default () => {
                   }}
                 />
                 {popup}
-                { config.features.maskFeature && <MaskLayer /> }
+                { config.features.maskFeature && <MaskLayer opacity={0.45}/> }
+                <CountriesLayer />
                 <Legend
                   classBreaks={currentBreaks}
                   selectedLayer={selectedLayer}
                 />
+                <NavigationControl showZoom position='top-right' />
               </MapGL>
             </div>
           </section>

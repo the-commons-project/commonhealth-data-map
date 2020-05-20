@@ -1,27 +1,38 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import { Layer, Source } from "@urbica/react-map-gl";
 
+import StateContext from "../State";
+
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 
-const maskLayerSource = {
-  id: "eac-mask-source",
-  type: "geojson",
-  data: "/eac-mask.json",
-};
+export default ({
+  region, // Region for mask. If undefined, uses the selected country.
+  opacity = 0.25
+}) => {
+  const {
+    selectedCountryId
+  } = useContext(StateContext);
 
-const maskLayer = {
-  id: "eac-mask",
-  type: "fill",
-  source: "eac-mask-source",
-  layout: {},
-  paint: {
-    "fill-color": "#000",
-    "fill-opacity": 0.25,
-  },
-};
+  const maskRegion = !!region ? region : selectedCountryId;
 
-export default () => {
+  const maskLayerSource = {
+    id: "eac-mask-source",
+    type: "geojson",
+    data: `/masks/${maskRegion}-mask.geojson`
+  };
+
+  const maskLayer = {
+    id: "eac-mask",
+    type: "fill",
+    source: "eac-mask-source",
+    layout: {},
+    paint: {
+      "fill-color": "#000",
+      "fill-opacity": opacity,
+    },
+  };
+
   return (
     <>
       <Source {...maskLayerSource} />

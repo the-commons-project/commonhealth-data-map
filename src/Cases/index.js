@@ -1,13 +1,14 @@
 import React, {
   useContext,
   useEffect,
+  useRef,
   useState,
   useMemo,
   useCallback,
 } from "react";
 import { MapboxLayer } from "@deck.gl/mapbox";
 import { ScatterplotLayer } from "@deck.gl/layers";
-import MapGL, { CustomLayer } from "@urbica/react-map-gl";
+import MapGL, { CustomLayer, NavigationControl, MapContext } from "@urbica/react-map-gl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import groupBy from "lodash.groupby";
@@ -15,6 +16,7 @@ import keyBy from "lodash.keyby";
 
 import MaskLayer from "../MaskLayer";
 import PopupContent from "./PopupContent";
+import CountriesLayer from "../CountriesLayer";
 
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -47,6 +49,10 @@ export default () => {
 
   const [popupEnabled, setPopupEnabled] = useState(false);
   const [popupDetails, setPopupDetails] = useState();
+
+  const [mapInitNeeded, setMapInitNeeded] = useState(true);
+
+  const mapElement = useRef(null);
 
   const {
     setLastUpdatedDate,
@@ -201,9 +207,14 @@ export default () => {
             setPopupEnabled(false);
           }
         }
-      }),
-    []
-  );
+      }), []);
+
+  // Hack to avoid Deck.gl from messing with the cursor.
+  // To be removed when we move away from deck.gl and the
+  // scatter plot layer to a vector-tile based solution.
+  if(!!scatterPlotLayer.deck) {
+    scatterPlotLayer.deck._updateCursor = () => {};
+  }
 
   const popup = popupEnabled ? (
     <PopupContent
@@ -227,6 +238,20 @@ export default () => {
         : [220, 220, 220],
     });
   }
+
+  useEffect(() => {
+    if(!mapInitNeeded) {
+      mapElement.current._map.fitBounds(eacCountries[selectedCountryId].bounds, {
+        padding: 20
+      });
+    }
+  }, [selectedCountryId]);
+
+  const mapInit = map => {
+    if (mapInitNeeded) {
+      setMapInitNeeded(false);
+    }
+  };
 
   return (
     <div className="viz cases">
@@ -319,9 +344,22 @@ export default () => {
                 ]}
                 accessToken={MAPBOX_ACCESS_TOKEN}
                 renderWorldCopies={false}
+                ref={mapElement}
               >
+                <MapContext.Consumer>
+                  {map => {
+                    mapInitNeeded && mapInit(map);
+                  }}
+                </MapContext.Consumer>
                 <CustomLayer layer={scatterPlotLayer} />
+                <NavigationControl showZoom position='top-right' />
+
+                {/* Mask Layer */}
                 { config.features.maskFeature && <MaskLayer /> }
+
+                {/* Countries Layer */}
+                <CountriesLayer />
+
                 {popup}
               </MapGL>
             </div>
