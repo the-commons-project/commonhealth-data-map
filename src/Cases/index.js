@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { MapboxLayer } from "@deck.gl/mapbox";
 import { ScatterplotLayer } from "@deck.gl/layers";
-import MapGL, { CustomLayer, NavigationControl, MapContext } from "@urbica/react-map-gl";
+import MapGL, { CustomLayer, NavigationControl, MapContext, AttributionControl } from "@urbica/react-map-gl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import groupBy from "lodash.groupby";
@@ -350,6 +350,11 @@ export default () => {
                 </MapContext.Consumer>
                 <CustomLayer layer={scatterPlotLayer} />
                 <NavigationControl showZoom position='top-right' />
+                <AttributionControl
+                  compact={true}
+                  position="bottom-right"
+                  customAttribution='Sources: Esri, HERE, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors, and the GIS User Community'
+                />
 
                 {/* Mask Layer */}
                 {config.features.maskFeature && <MaskLayer />}

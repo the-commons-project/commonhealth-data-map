@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useMemo, useRef } from "react";
 import * as _ from "underscore";
-import MapGL, { Layer, Source, MapContext, NavigationControl } from "@urbica/react-map-gl";
+import MapGL, { Layer, Source, MapContext, NavigationControl, AttributionControl } from "@urbica/react-map-gl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import Loading from "../Loading";
@@ -377,6 +377,11 @@ export default () => {
                   selectedLayer={selectedLayer}
                 />
                 <NavigationControl showZoom position='top-right' />
+                <AttributionControl
+                  compact={true}
+                  position="bottom-right"
+                  customAttribution='Sources: Esri, HERE, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors, and the GIS User Community'
+                />
               </MapGL>
             </div>
           </section>

@@ -5,6 +5,7 @@ import MapGL, {
   Source,
   MapContext,
   NavigationControl,
+  AttributionControl,
 } from "@urbica/react-map-gl";
 
 import CapacityLayerControl from "./CapacityLayerControl.jsx";
@@ -187,6 +188,11 @@ export default () => {
           setFacilityLayerStatus={setFacilityLayerEnabled}
         ></CapacityLayerControl>
         <NavigationControl showZoom position='top-right' />
+        <AttributionControl
+          compact={true}
+          position="bottom-right"
+          customAttribution='Sources: Esri, HERE, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors, and the GIS User Community'
+        />
       </MapGL>
     </div>
   );
