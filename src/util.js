@@ -1,3 +1,5 @@
+import * as dateFormat from "dateformat";
+
 const abbreviateNumber = value => {
   var newValue = value;
   if (value >= 1000) {
@@ -114,15 +116,21 @@ export const changeDates = (
   setDates,
   setSelectedDateIndex
 ) => {
-  // This is the version if we want to maintain dates between tabs.
-  // const currentDate = currentDates[currentSelectedDateIndex],
-  //       newDateIndex = newDates.indexOf(currentDate),
-  //       newSelectedDateIndex = newDateIndex == -1 ? newDates.length - 1 : newDateIndex;
+  // Add any missing dates between the last available date and the current date.
+  let date = new Date(newDates[newDates.length - 1]),
+      today = new Date();
 
-  // For now, just reset to the latest data date.
-  const newSelectedDateIndex = newDates.length - 1;
+  const dates = newDates.slice();
+  while(date < today) {
+    date.setDate(date.getDate() + 1);
+    dates.push(dateFormat(date, "isoDate", true));
+  }
 
-  setDates(newDates);
+  const currentDate = currentDates[currentSelectedDateIndex],
+        newDateIndex = dates.indexOf(currentDate),
+        newSelectedDateIndex = newDateIndex == -1 ? dates.length - 1 : newDateIndex;
+
+  setDates(dates);
   setSelectedDateIndex(newSelectedDateIndex);
 };
 
