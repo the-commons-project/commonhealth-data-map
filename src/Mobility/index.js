@@ -45,12 +45,16 @@ export default () => {
   const config = useContext(ConfigurationContext);
 
   const {
+    setLastUpdatedDate,
+    setSources,
+    setDateSelectorEnabled,
     dates,
     setDates,
     activeTab,
     setActiveTab,
     selectedDateIndex,
     setSelectedDateIndex,
+    setCountrySelectorEnabled,
     selectedCountryId,
     setReady,
     countrySelectEntries,
@@ -84,11 +88,10 @@ export default () => {
   const [popupEnabled, setPopupEnabled] = useState(false);
   const [popupDetails, setPopupDetails] = useState();
 
-  const selectedDate = dates[selectedDateIndex];
+  const selectedDate = !!mobilityDates && mobilityDates[mobilityDates.length - 1] < dates[selectedDateIndex] ? (
+    mobilityDates[mobilityDates.length - 1]) : dates[selectedDateIndex];
 
-  const chartTime = dataLoaded
-    ? new Date(dates[selectedDateIndex]).getTime()
-    : undefined;
+  const chartTime = dataLoaded ? new Date(selectedDate).getTime() : undefined;
   const mapElement = useRef(null);
 
   const alpha3 = countrySelectEntries[selectedCountryId].alpha3,
@@ -103,8 +106,23 @@ export default () => {
       ? aggregationTypes[aggType].breaks[selectedLayer]
       : null;
 
-  // Set the active tab.
-  useEffect(() => setActiveTab(tabCodes.mobility), [setActiveTab]);
+  // On tab activation.
+  useEffect(() => {
+    setDateSelectorEnabled(true);
+    setCountrySelectorEnabled(true);
+
+
+    setActiveTab(tabCodes.mobility);
+    if(!!mobilityDates) {
+      setLastUpdatedDate(mobilityDates[mobilityDates.length - 1]);
+    } else {
+      setLastUpdatedDate(null);
+    }
+    setSources([
+      <a href="https://www.google.com/covid19/mobility/">Google Mobility Data</a>
+    ]);
+
+  }, [setActiveTab]);
 
   // Fetch all the data for this tab.
   useEffect(() => {
@@ -118,6 +136,7 @@ export default () => {
         loadConfig(config);
         setMobilityData(data);
         setMobilityDates(config.dates);
+        setLastUpdatedDate(config.dates[config.dates.length - 1]);
         setCodeToId(code2id);
         setDataLoaded(true);
         setReady(true);
@@ -408,14 +427,6 @@ export default () => {
                 />
               </section>
             )}
-            <section style={{ padding: "0 10px 10px" }}>
-              <div className="source">
-                <b>Source:</b>{" "}
-                <a href="https://www.google.com/covid19/mobility/">
-                  Google Mobility Data
-                </a>
-              </div>
-            </section>
           </>
         </div>
       </main>

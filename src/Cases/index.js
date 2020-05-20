@@ -14,6 +14,7 @@ import groupBy from "lodash.groupby";
 import keyBy from "lodash.keyby";
 
 import MaskLayer from "../MaskLayer";
+import PopupContent from "./PopupContent";
 
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -44,13 +45,20 @@ export default () => {
   const [dataLoaded, setDataLoaded] = useState(false);
   const radius = 50;
 
+  const [popupEnabled, setPopupEnabled] = useState(false);
+  const [popupDetails, setPopupDetails] = useState();
+
   const {
+    setLastUpdatedDate,
+    setSources,
+    setDateSelectorEnabled,
     dates,
     setDates,
     activeTab,
     setActiveTab,
     selectedDateIndex,
     setSelectedDateIndex,
+    setCountrySelectorEnabled,
     selectedCountryId,
     setReady,
     setCountrySelectEntries,
@@ -62,28 +70,52 @@ export default () => {
       setIndexedCaseData,
       caseDates,
       setCaseDates,
+      maxDatePerCountry,
+      setMaxDatePerCountry
     },
   } = useContext(StateContext);
 
-  // Set the active tab.
-  useEffect(() => setActiveTab(tabCodes.mobility), [setActiveTab]);
+  // On tab activation.
+  useEffect(() => {
+    setDateSelectorEnabled(true);
+    setCountrySelectorEnabled(true);
+
+    setActiveTab(tabCodes.mobility);
+
+    if(!!caseDates) {
+      setLastUpdatedDate(caseDates[caseDates.length - 1]);
+    } else {
+      setLastUpdatedDate(null);
+    }
+    setSources([
+      <a href="https://github.com/CSSEGISandData/COVID-19">JHU</a>,
+      "EAC Secretariat"
+    ]);
+  }, [setActiveTab, dataLoaded]);
 
   useEffect(() => {
     if (!dataLoaded) {
       fetch("/data/jhu-case-data.json")
         .then((response) => response.json())
         .then((data) => {
-          const loadedDates = Array.from(
-            new Set(data.map((d) => d.date))
-          ).sort();
-          const grouped = groupBy(data, "date");
-          const indexed = Object.entries(grouped).reduce(
-            (acc, [k, v]) => ({
-              ...acc,
-              [k]: keyBy(v, "code"),
-            }),
-            {}
-          );
+          const dates = new Set();
+          const indexed = {};
+          const maxDates = {};
+          data.forEach(d => {
+            dates.add(d.date);
+
+            if(!(d.date in indexed)) {
+              indexed[d.date] = { };
+            }
+            indexed[d.date][d.code] = d;
+
+            if(!(d.code in maxDates) || d.date > maxDates[d.code]) {
+              maxDates[d.code] = d.date;
+            }
+          });
+          const loadedDates = Array.from(dates).sort();
+          setLastUpdatedDate(loadedDates[loadedDates.length - 1]);
+          setMaxDatePerCountry(maxDates);
           setCaseDates(loadedDates);
           setCaseData(data);
           setIndexedCaseData(indexed);
@@ -116,13 +148,12 @@ export default () => {
     }
   }, [activeTab, dataLoaded]);
 
-  const activeData = dataLoaded
-    ? indexedCaseData[dates[selectedDateIndex]]
-    : null;
+  const activeDate = caseDates[caseDates.length - 1] < dates[selectedDateIndex] ? (
+    caseDates[caseDates.length - 1]) : dates[selectedDateIndex];
 
-  const chartTime = dataLoaded
-    ? new Date(dates[selectedDateIndex]).getTime()
-    : undefined;
+  const activeData = dataLoaded ? indexedCaseData[activeDate] : null;
+
+  const chartTime = dataLoaded ? new Date(activeDate).getTime() : undefined;
 
   const isSelectedCountry = useCallback(
     (countryCode, countryName) => {
@@ -161,21 +192,41 @@ export default () => {
         lineWidthUnits: "pixels",
         getPosition: (d) => d.coordinates,
         pickable: true,
+        onHover: ({object}) => {
+          if(!!object) {
+            setPopupDetails(object);
+            setPopupEnabled(true);
+          } else {
+            setPopupDetails(null);
+            setPopupEnabled(false);
+          }
+        }
       }),
     []
   );
 
-  scatterPlotLayer.setProps({
-    data: caseData.filter((d) => !!d.coordinates && d.date === dates[selectedDateIndex]),
-    getLineWidth: (d) =>
-          isSelectedCountry(d.code, d.name) ? 1 : 0.5,
-    getRadius: (d) =>
-          radius * 700 * Math.pow(d[activeCaseType.id], 0.3),
-    getFillColor: (d) =>
-          isSelectedCountry(d.code, d.name)
-          ? activeCaseType.colorArray
-          : [220, 220, 220],
-  });
+  const popup = popupEnabled ? (
+    <PopupContent
+      object={popupDetails}
+    />
+  ) : null;
+
+  if(dataLoaded) {
+    scatterPlotLayer.setProps({
+      data: caseData.filter(d => {
+        return !!d.coordinates && (dates[selectedDateIndex] > maxDatePerCountry[d.code] ? (
+          d.date === maxDatePerCountry[d.code]) : d.date === dates[selectedDateIndex]);
+      }),
+      getLineWidth: d =>
+         isSelectedCountry(d.code, d.name) ? 1 : 0.5,
+      getRadius: d =>
+        radius * 700 * Math.pow(d[activeCaseType.id], 0.3),
+      getFillColor: d =>
+        isSelectedCountry(d.code, d.name)
+        ? activeCaseType.colorArray
+        : [220, 220, 220],
+    });
+  }
 
   return (
     <div className="viz cases">
@@ -271,6 +322,7 @@ export default () => {
               >
                 <CustomLayer layer={scatterPlotLayer} />
                 { config.features.maskFeature && <MaskLayer /> }
+                {popup}
               </MapGL>
             </div>
           </section>

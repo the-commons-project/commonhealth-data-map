@@ -1,10 +1,18 @@
 import { createContext } from "react";
 
 export default createContext({
+  lastUpdatedDate: null,
+  setLastUpdatedDate: () => {},
+  sources: null,
+  setSources: () => {},
+  dateSelectorEnabled: false,
+  setDateSelectorEnabled: () => {},
   dates: [],
   setDates: () => {},
   selectedDateIndex: -1,
   setSelectedDateIndex: () => {},
+  countrySelectorEnabled: false,
+  setCountrySelectorEnabled: () => {},
   selectedCountryId: "eac",
   setSelectedCountryId: () => {},
   countrySelectEntries: [],
@@ -15,7 +23,9 @@ export default createContext({
     indexedData: {},
     setIndexedData: () => {},
     caseDates: [],
-    setCaseDates: () => {}
+    setCaseDates: () => {},
+    maxDatePerCountry: null,
+    setMaxDatePerCountry: () => {}
   },
   mobility: {
     mobilityData: null,

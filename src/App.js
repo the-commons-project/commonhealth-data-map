@@ -8,6 +8,7 @@ import {
 
 import Cases from "./Cases";
 import HeaderBranding from "./HeaderBranding";
+import Footer from "./Footer";
 import Tabs from "./Tabs";
 import StateContext from "./State";
 import Mobility from "./Mobility";
@@ -17,8 +18,12 @@ import { eacCountries } from "./util";
 import ConfigurationProvider from "./ConfigurationProvider";
 
 const App = () => {
+  const [lastUpdatedDate, setLastUpdatedDate] = useState(null);
+  const [sources, setSources] = useState(null);
+  const [dateSelectorEnabled, setDateSelectorEnabled] = useState(false);
   const [dates, setDates] = useState([]);
   const [selectedDateIndex, setSelectedDateIndex] = useState(-1);
+  const [countrySelectorEnabled, setCountrySelectorEnabled] = useState(false);
   const [selectedCountryId, setSelectedCountryId] = useState("eac");
   const [activeTab, setActiveTab] = useState(null);
   const [countrySelectEntries, setCountrySelectEntries] = useState(
@@ -30,6 +35,7 @@ const App = () => {
   const [caseData, setCaseData] = useState([]);
   const [indexedCaseData, setIndexedCaseData] = useState({});
   const [caseDates, setCaseDates] = useState([]);
+  const [maxDatePerCountry, setMaxDatePerCountry] = useState(null);
   const cases = {
     caseData,
     setCaseData,
@@ -37,6 +43,8 @@ const App = () => {
     setIndexedCaseData,
     caseDates,
     setCaseDates,
+    maxDatePerCountry,
+    setMaxDatePerCountry
   };
 
   // Mobility tab
@@ -50,10 +58,18 @@ const App = () => {
   };
 
   const stateValue = {
+    lastUpdatedDate,
+    setLastUpdatedDate,
+    sources,
+    setSources,
+    dateSelectorEnabled,
+    setDateSelectorEnabled,
     dates,
     setDates,
     selectedDateIndex,
     setSelectedDateIndex,
+    countrySelectorEnabled,
+    setCountrySelectorEnabled,
     selectedCountryId,
     setSelectedCountryId,
     ready,
@@ -89,6 +105,7 @@ const App = () => {
                   </Route>
                   <Redirect from="/:code" to="/:code/cases" />
                 </Switch>
+                <Footer/>
               </StateContext.Provider>
             </ConfigurationProvider>
           </Route>

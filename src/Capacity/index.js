@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import MapGL, {
   Popup,
   Layer,
@@ -12,6 +12,8 @@ import "./index.css";
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 import MaskLayer from "../MaskLayer";
+import { tabCodes } from "../util";
+import StateContext from "../State";
 import { ConfigurationContext } from "../ConfigurationProvider";
 
 
@@ -64,6 +66,12 @@ const popLayer = {
 export default () => {
   const config = useContext(ConfigurationContext);
 
+  const { setLastUpdatedDate,
+          setDateSelectorEnabled,
+          setCountrySelectorEnabled,
+          setSources,
+          setActiveTab } = useContext(StateContext);
+
   const [popLayerEnabled, setPopLayerEnabled] = useState(true);
 
   const [facilityLayerEnabled, setFacilityLayerEnabled] = useState(true);
@@ -76,6 +84,19 @@ export default () => {
   const [popupLatLng, setPopupLatLng] = useState({ lat: 0, lng: 0 });
 
   const [viewport, setViewport] = useState(config.defaults.viewport);
+
+  // On tab activation.
+  useEffect(() => {
+    setDateSelectorEnabled(false);
+    setCountrySelectorEnabled(false);
+
+    setActiveTab(tabCodes.capacity);
+    setLastUpdatedDate(null);
+    setSources([
+        <a href="https://www.who.int/malaria/areas/surveillance/public-sector-health-facilities-ss-africa/en/">World Health Organization</a>,
+        <a href="https://www.worldpop.org/">WorldPop</a>
+    ]);
+  }, [setActiveTab]);
 
   return (
     <div className="map-container">
