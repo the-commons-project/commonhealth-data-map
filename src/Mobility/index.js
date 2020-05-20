@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useMemo, useRef } from "react";
 import * as _ from "underscore";
-import MapGL, { Layer, Source, MapContext } from "@urbica/react-map-gl";
+import MapGL, { Layer, Source, MapContext, NavigationControl } from "@urbica/react-map-gl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import Loading from "../Loading";
@@ -360,6 +360,7 @@ export default () => {
                   classBreaks={currentBreaks}
                   selectedLayer={selectedLayer}
                 />
+                <NavigationControl showZoom position='top-right' />
               </MapGL>
             </div>
           </section>

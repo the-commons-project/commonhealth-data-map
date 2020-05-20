@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { MapboxLayer } from "@deck.gl/mapbox";
 import { ScatterplotLayer } from "@deck.gl/layers";
-import MapGL, { CustomLayer } from "@urbica/react-map-gl";
+import MapGL, { CustomLayer, NavigationControl } from "@urbica/react-map-gl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import groupBy from "lodash.groupby";
@@ -321,6 +321,7 @@ export default () => {
                 renderWorldCopies={false}
               >
                 <CustomLayer layer={scatterPlotLayer} />
+                <NavigationControl showZoom position='top-right' />
                 { config.features.maskFeature && <MaskLayer /> }
                 {popup}
               </MapGL>
