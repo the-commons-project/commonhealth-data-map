@@ -674,7 +674,6 @@ main {
   .map-container {
     min-height: 300px;
     height: 70vh;
-    pointer-events: none;
   }
   .primary {
     border-right: none;
