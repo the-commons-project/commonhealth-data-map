@@ -164,20 +164,7 @@ export default () => {
         config.defaults.country
       );
     }
-  }, [
-    activeTab,
-    config.defaults.countries,
-    config.defaults.country,
-    dataLoaded,
-    dates,
-    mobilityDates,
-    selectedCountryId,
-    selectedDateIndex,
-    setCountrySelectEntries,
-    setDates,
-    setSelectedCountryId,
-    setSelectedDateIndex,
-  ]);
+  }, [activeTab, dataLoaded]);
 
   const chartData = useMemo(() => {
     if (dataLoaded) {

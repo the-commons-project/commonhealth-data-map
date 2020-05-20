@@ -153,20 +153,7 @@ export default () => {
         config.defaults.country
       );
     }
-  }, [
-    activeTab,
-    caseDates,
-    config.defaults.countries,
-    config.defaults.country,
-    dataLoaded,
-    dates,
-    selectedCountryId,
-    selectedDateIndex,
-    setCountrySelectEntries,
-    setDates,
-    setSelectedCountryId,
-    setSelectedDateIndex,
-  ]);
+  }, [activeTab, dataLoaded]);
 
   const activeDate = caseDates[caseDates.length - 1] < dates[selectedDateIndex] ? (
     caseDates[caseDates.length - 1]) : dates[selectedDateIndex];
