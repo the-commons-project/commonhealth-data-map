@@ -82,7 +82,8 @@ const CONFIGS = [
         pitch: 0,
       },
       country: 'eac',
-      countries: eacCountries
+      countries: eacCountries,
+      baseMask: 'eac'
     }
   },
 ];

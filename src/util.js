@@ -73,13 +73,20 @@ const eacCodes = [
 ];
 
 const eacCountries = {
-  eac: { name: "All EAC Countries", alpha3: 'EAC', disabled: false, hasFlag: false },
-  burundi: { name: "Burundi", alpha3: 'BDI', disabled: false, hasFlag: true },
-  kenya: { name: "Kenya", alpha3: 'KEN', disabled: false, hasFlag: true },
-  rwanda: { name: "Rwanda", alpha3: 'RWA', disabled: false, hasFlag: true },
-  "south-sudan": { name: "South Sudan", alpha3: 'SSD', disabled: false, hasFlag: true },
-  tanzania: { name: "Tanzania", alpha3: 'TZA', disabled: false, hasFlag: true },
-  uganda: { name: "Uganda", alpha3: 'UGA', disabled: false, hasFlag: true }
+  eac: { name: "All EAC Countries", alpha3: 'EAC', disabled: false,
+         bounds: [[24.12, -11.78], [41.89, 12.26]] },
+  burundi: { name: "Burundi", alpha3: 'BDI', disabled: false,
+             bounds: [[28.986, -4.463], [30.833, -2.303]]},
+  kenya: { name: "Kenya", alpha3: 'KEN', disabled: false,
+           bounds: [[33.89, -4.677], [41.885, 5.03]] },
+  rwanda: { name: "Rwanda", alpha3: 'RWA', disabled: false,
+            bounds: [[28.857, -2.826], [30.887, -1.058]] },
+  "south-sudan": { name: "South Sudan", alpha3: 'SSD', disabled: false,
+                   bounds: [[24.121, 3.49], [35.92, 12.216]] },
+  tanzania: { name: "Tanzania", alpha3: 'TZA', disabled: false,
+              bounds: [[29.321, -11.731], [40.449, -0.985]] },
+  uganda: { name: "Uganda", alpha3: 'UGA', disabled: false,
+            bounds: [[29.548, -1.475], [35.006, 4.219]] }
 };
 
 const caseTypes = [

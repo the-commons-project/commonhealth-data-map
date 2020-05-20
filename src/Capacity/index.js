@@ -164,7 +164,11 @@ export default () => {
           )}
 
         {/* Mask Layer */}
-        { config.features.maskFeature && <MaskLayer /> }
+        { config.features.maskFeature && (
+          !!config.defaults.baseMask ?
+            <MaskLayer region={config.defaults.baseMask}/>
+          : null
+        ) }
 
         {/* Layer Control */}
         <CapacityLayerControl
