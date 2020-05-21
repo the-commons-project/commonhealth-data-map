@@ -42,6 +42,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         ### Build data ###
 
         mkdir -p build/data
+        mkdir -p build/data/cases
         mkdir -p build/data/tiles
         mkdir -p build/data/mobility
         mkdir -p build/data/capacity
@@ -49,7 +50,16 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
 
         ## Cases data ##
 
-        cp "${DIR}/../data-processing/data/published/jhu-case-data.json" build/data/
+        cp "${DIR}/../data-processing/data/published/case-codes-to-ids.json" build/data/cases/
+        cp "${DIR}/../data-processing/data/published/case-config.json" build/data/cases/
+        cp "${DIR}/../data-processing/data/published/case-data.json" build/data/cases/
+        cp "${DIR}/../data-processing/data/published/county-case-data.json" build/data/cases/
+        cp "${DIR}/../data-processing/data/published/case-points.geojson" build-cache/
+
+        # Generate vector tiles
+        tippecanoe -f -pk -r1 -pf --no-tile-compression -e build/data/cases/tiles \
+            --maximum-zoom=12 --minimum-zoom=0 -l points \
+            build-cache/case-points.geojson
 
         ## Mobility data ##
 
@@ -71,7 +81,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
 
         # Generate vector tiles
         tippecanoe -f -pk -r1 -pf --no-tile-compression -e build/data/capacity/tiles/facilities \
-            --maximum-zoom=12 --minimum-zoom=1 -l facilities \
+            --maximum-zoom=12 --minimum-zoom=0 -l facilities \
             build-cache/africa_health_facilities.geojson
     fi
 fi
