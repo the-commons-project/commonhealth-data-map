@@ -4,32 +4,29 @@ import MapGL, {
   Layer,
   Source,
   MapContext,
-  NavigationControl
+  NavigationControl,
+  AttributionControl,
 } from "@urbica/react-map-gl";
 
 import CapacityLayerControl from "./CapacityLayerControl.jsx";
 import "./index.css";
-import 'mapbox-gl/dist/mapbox-gl.css';
+import "mapbox-gl/dist/mapbox-gl.css";
 
 import MaskLayer from "../MaskLayer";
 import { tabCodes } from "../util";
 import StateContext from "../State";
 import { ConfigurationContext } from "../ConfigurationProvider";
-
-
-const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
+import mapStyle from "../mapStyle.json";
 
 const facilityLayerSource = {
   id: "facilities",
-  type: 'vector',
+  type: "vector",
   tiles: [
-    window.location.origin +
-      '/data/capacity/tiles/facilities/{z}/{x}/{y}.pbf',
+    window.location.origin + "/data/capacity/tiles/facilities/{z}/{x}/{y}.pbf",
   ],
   minzoom: 1,
   maxzoom: 12,
 };
-
 
 const hospitalColor = "#46008C";
 
@@ -43,16 +40,26 @@ const facilityLayer = {
   paint: {
     "circle-opacity": ["interpolate", ["linear"], ["zoom"], 4, 0.2, 10, 0.8],
     "circle-color": hospitalColor,
-    "circle-radius": ["interpolate", ["exponential", 1.7], ["zoom"], 4, 1.5, 10, 15],
+    "circle-radius": [
+      "interpolate",
+      ["exponential", 1.7],
+      ["zoom"],
+      4,
+      1.5,
+      10,
+      15,
+    ],
     "circle-stroke-color": "#46008C",
-    "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 4, 0, 10, 0.5]
-  }
+    "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 4, 0, 10, 0.5],
+  },
 };
 
 const popLayerSource = {
-  id: 'population-density',
-  type: 'raster',
-  tiles: ['https://s3.amazonaws.com/com.azavea.datahub.tms/worldpop/2020/blue/{z}/{x}/{y}.png']
+  id: "population-density",
+  type: "raster",
+  tiles: [
+    "https://s3.amazonaws.com/com.azavea.datahub.tms/worldpop/2020/blue/{z}/{x}/{y}.png",
+  ],
 };
 
 const popLayer = {
@@ -60,7 +67,7 @@ const popLayer = {
   type: "raster",
   source: "population-density",
   minzoom: 0,
-  maxzoom: 22
+  maxzoom: 22,
 };
 
 export default () => {
@@ -79,7 +86,7 @@ export default () => {
   const [popupEnabled, setPopupEnabled] = useState(false);
   const [popupProps, setPopupProps] = useState({
     "Facility name": "",
-    Country: ""
+    Country: "",
   });
   const [popupLatLng, setPopupLatLng] = useState({ lat: 0, lng: 0 });
 
@@ -105,51 +112,54 @@ export default () => {
         minZoom={1}
         onViewportChange={(viewport) => setViewport(viewport)}
         style={{ width: "100%", height: "100%" }}
-        mapStyle="mapbox://styles/mapbox/light-v9"
-        accessToken={MAPBOX_ACCESS_TOKEN}
+        mapStyle={mapStyle}
         renderWorldCopies={false}
-        maxBounds={[[-180,-90], [180,90]]}
+        maxBounds={[
+          [-180, -90],
+          [180, 90],
+        ]}
         attributionControl={false}
       >
-
         {/* Population Density Layer */}
-        { popLayerEnabled ? (
+        {popLayerEnabled ? (
           <>
             <Source {...popLayerSource} />
             <Layer
               {...popLayer}
-              before={ facilityLayerEnabled ? 'facilities' : 'eac-mask' }
+              before={facilityLayerEnabled ? "facilities" : "eac-mask"}
             />
-          </>) :
+          </>
+        ) : (
           <></>
-        }
+        )}
         {/* Health Facility Layer */}
-        { facilityLayerEnabled ? (
+        {facilityLayerEnabled ? (
           <>
             <Source {...facilityLayerSource} />
             <Layer
               {...facilityLayer}
-              onHover={e => {
+              onHover={(e) => {
                 setPopupEnabled(true);
                 setPopupProps(e.features[0].properties);
                 setPopupLatLng(e.lngLat);
               }}
-              onLeave={e => {
+              onLeave={(e) => {
                 setPopupEnabled(false);
               }}
             />
             <MapContext.Consumer>
-              {map => {
+              {(map) => {
                 map.on("mousemove", "facilities", (e) => {
-                  map.getCanvas().style.cursor = 'default';
+                  map.getCanvas().style.cursor = "default";
                 });
               }}
             </MapContext.Consumer>
-          </>) :
+          </>
+        ) : (
           <></>
-        }
+        )}
 
-        { popupEnabled ?
+        {popupEnabled ? (
           <Popup
             latitude={popupLatLng.lat}
             longitude={popupLatLng.lng}
@@ -159,16 +169,17 @@ export default () => {
               <div className="popup-heading">{`${popupProps["Facility name"]}`}</div>
               <div className="popup-type">{`${popupProps["Facility type"]}`}</div>
             </div>
-          </Popup> : (
-            <></>
-          )}
+          </Popup>
+        ) : (
+          <></>
+        )}
 
         {/* Mask Layer */}
-        { config.features.maskFeature && (
+        {config.features.maskFeature && (
           !!config.defaults.baseMask ?
             <MaskLayer region={config.defaults.baseMask}/>
           : null
-        ) }
+        )}
 
         {/* Layer Control */}
         <CapacityLayerControl
@@ -177,6 +188,11 @@ export default () => {
           setFacilityLayerStatus={setFacilityLayerEnabled}
         ></CapacityLayerControl>
         <NavigationControl showZoom position='top-right' />
+        <AttributionControl
+          compact={true}
+          position="bottom-right"
+          customAttribution='Sources: Esri, HERE, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors, and the GIS User Community'
+        />
       </MapGL>
     </div>
   );

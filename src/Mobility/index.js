@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useMemo, useRef } from "react";
 import * as _ from "underscore";
-import MapGL, { Layer, Source, MapContext, NavigationControl } from "@urbica/react-map-gl";
+import MapGL, { Layer, Source, MapContext, NavigationControl, AttributionControl } from "@urbica/react-map-gl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import Loading from "../Loading";
@@ -15,21 +15,16 @@ import Legend from "./Legend";
 import Table from "./Table";
 import Chart from "./Chart";
 
-import {
-  changeDates,
-  tabCodes,
-  changeCountrySelectEntries,
-} from "../util";
+import { changeDates, tabCodes, changeCountrySelectEntries } from "../util";
 
 import "./index.css";
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-import 'mapbox-gl/dist/mapbox-gl.css';
+import "mapbox-gl/dist/mapbox-gl.css";
 
 import StateContext from "../State";
 import { ConfigurationContext } from "../ConfigurationProvider";
 
-const MAPBOX_ACCESS_TOKEN =
-  "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
+import mapStyle from "../mapStyle.json";
 
 const boundarySource = {
   type: "vector",
@@ -185,7 +180,14 @@ export default () => {
     } else {
       return null;
     }
-  }, [dataLoaded, selectedCountryId, codeToId, countryData, selectedLayer]);
+  }, [
+    dataLoaded,
+    countrySelectEntries,
+    selectedCountryId,
+    codeToId,
+    countryData,
+    selectedLayer,
+  ]);
 
   // Handle setting feature state based on selected layer.
   useEffect(() => {
@@ -308,8 +310,7 @@ export default () => {
                 {...viewport}
                 onViewportChange={(viewport) => setViewport(viewport)}
                 style={{ width: "100%", height: "100%" }}
-                mapStyle="mapbox://styles/mapbox/light-v9"
-                accessToken={MAPBOX_ACCESS_TOKEN}
+                mapStyle={mapStyle}
                 renderWorldCopies={false}
                 maxBounds={[
                   [-180, -90],
@@ -369,13 +370,18 @@ export default () => {
                   }}
                 />
                 {popup}
-                { config.features.maskFeature && <MaskLayer opacity={0.45}/> }
+                {config.features.maskFeature && <MaskLayer opacity={0.45}/>}
                 <CountriesLayer />
                 <Legend
                   classBreaks={currentBreaks}
                   selectedLayer={selectedLayer}
                 />
                 <NavigationControl showZoom position='top-right' />
+                <AttributionControl
+                  compact={true}
+                  position="bottom-right"
+                  customAttribution='Sources: Esri, HERE, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors, and the GIS User Community'
+                />
               </MapGL>
             </div>
           </section>
@@ -386,7 +392,8 @@ export default () => {
               {!countryDataAvailable && (
                 <>
                   <h3 className="mobility-data-not-available-header">
-                    {countrySelectEntries[selectedCountryId].name} data not available
+                    {countrySelectEntries[selectedCountryId].name} data not
+                    available
                   </h3>
                   <p>
                     Try switching to a different country to view its mobility
