@@ -26,7 +26,7 @@ const facilityLayerSource = {
     window.location.origin +
       '/data/capacity/tiles/facilities/{z}/{x}/{y}.pbf',
   ],
-  minzoom: 1,
+  minzoom: 0,
   maxzoom: 12,
 };
 

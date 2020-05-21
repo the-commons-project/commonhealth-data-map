@@ -8,7 +8,13 @@ import React, {
 } from "react";
 import { MapboxLayer } from "@deck.gl/mapbox";
 import { ScatterplotLayer } from "@deck.gl/layers";
-import MapGL, { CustomLayer, NavigationControl, MapContext } from "@urbica/react-map-gl";
+import MapGL, {
+  CustomLayer,
+  Layer,
+  NavigationControl,
+  MapContext,
+  Source,
+} from "@urbica/react-map-gl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import groupBy from "lodash.groupby";
@@ -17,12 +23,14 @@ import keyBy from "lodash.keyby";
 import MaskLayer from "../MaskLayer";
 import PopupContent from "./PopupContent";
 import CountriesLayer from "../CountriesLayer";
+import { getCirclePaintStyle } from "./mapStyles.js";
 
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 import {
   eacCodes,
+  eacAlpha2,
   caseTypes,
   changeDates,
   tabCodes,
@@ -36,16 +44,34 @@ import StateContext from "../State";
 import { ConfigurationContext } from "../ConfigurationProvider";
 
 const MAPBOX_ACCESS_TOKEN =
-  "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
+      "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
+
+const pointLayerSource = {
+  id: "case-points",
+  type: 'vector',
+  tiles: [
+    window.location.origin +
+      '/data/cases/tiles/{z}/{x}/{y}.pbf',
+  ],
+  minzoom: 0,
+  maxzoom: 12,
+};
+
+
 
 export default () => {
   const config = useContext(ConfigurationContext);
 
+  const radius = 50;
+  const radius2 = 70000;
+
   const [viewport, setViewport] = useState(config.defaults.viewport);
 
   const [activeCaseType, setActiveCaseType] = useState(caseTypes[0]);
-  const [dataLoaded, setDataLoaded] = useState(false);
-  const radius = 50;
+
+  const [nationalDataLoaded, setNationalDataLoaded] = useState(false);
+  const [countyDataLoaded, setCountyDataLoaded] = useState(false);
+  const [configLoaded, setConfigLoaded] = useState(false);
 
   const [popupEnabled, setPopupEnabled] = useState(false);
   const [popupDetails, setPopupDetails] = useState();
@@ -67,17 +93,20 @@ export default () => {
     setCountrySelectorEnabled,
     selectedCountryId,
     setReady,
+    countrySelectEntries,
     setCountrySelectEntries,
     setSelectedCountryId,
     cases: {
-      caseData,
-      setCaseData,
-      indexedCaseData,
-      setIndexedCaseData,
+      nationalData,
+      setNationalData,
+      countyData,
+      setCountyData,
       caseDates,
       setCaseDates,
-      maxDatePerCountry,
-      setMaxDatePerCountry
+      maxDatePerId,
+      setMaxDatePerId,
+      alpha2ToId,
+      setAlpha2ToId
     },
   } = useContext(StateContext);
 
@@ -97,43 +126,59 @@ export default () => {
       <a href="https://github.com/CSSEGISandData/COVID-19">JHU</a>,
       "EAC Secretariat"
     ]);
-  }, [setActiveTab, dataLoaded]);
+  }, [setActiveTab, configLoaded]);
 
   useEffect(() => {
-    if (!dataLoaded) {
-      fetch("/data/jhu-case-data.json")
+    if (!nationalDataLoaded) {
+      fetch("/data/cases/case-data.json")
         .then((response) => response.json())
         .then((data) => {
-          const dates = new Set();
-          const indexed = {};
-          const maxDates = {};
-          data.forEach(d => {
-            dates.add(d.date);
-
-            if(!(d.date in indexed)) {
-              indexed[d.date] = { };
-            }
-            indexed[d.date][d.code] = d;
-
-            if(!(d.code in maxDates) || d.date > maxDates[d.code]) {
-              maxDates[d.code] = d.date;
-            }
-          });
-          const loadedDates = Array.from(dates).sort();
-          setLastUpdatedDate(loadedDates[loadedDates.length - 1]);
-          setMaxDatePerCountry(maxDates);
-          setCaseDates(loadedDates);
-          setCaseData(data);
-          setIndexedCaseData(indexed);
-          setReady(true);
-          setDataLoaded(true);
+          setNationalData(data);
+          setNationalDataLoaded(true);
         });
     }
-  }, [dataLoaded, setCaseData, setCaseDates, setIndexedCaseData, setReady]);
+  }, []);
+
+  useEffect(() => {
+    if (config.features.countyCasesFeature && !countyDataLoaded) {
+      fetch("/data/cases/county-case-data.json")
+        .then((response) => response.json())
+        .then((data) => {
+          setCountyData(data);
+          setCountyDataLoaded(true);
+        });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!configLoaded) {
+      fetch("/data/cases/case-config.json")
+        .then((response) => response.json())
+        .then((data) => {
+          const countries = data['countries'],
+                dates = data['dates'],
+                maxDates = data['maxDates'],
+                alpha2ToId = data['alpha2ToId'];
+
+          Object.keys(maxDates).forEach((key) => {
+            maxDates[key] = {
+              'date': maxDates[key],
+              'time': new Date(maxDates[key]).getTime()
+            };
+          });
+
+          setMaxDatePerId(maxDates);
+          setCaseDates(dates);
+          setAlpha2ToId(alpha2ToId);
+
+          setConfigLoaded(true);
+        });
+    }
+  }, []);
 
   // Setup tab data on mount and when data is loaded
   useEffect(() => {
-    if (dataLoaded) {
+    if (configLoaded) {
       // set the date slider to the case data dates.
       changeDates(
         dates,
@@ -152,98 +197,72 @@ export default () => {
         config.defaults.country
       );
     }
-  }, [activeTab, dataLoaded]);
+  }, [activeTab, configLoaded]);
 
-  const activeDate = caseDates[caseDates.length - 1] < dates[selectedDateIndex] ? (
-    caseDates[caseDates.length - 1]) : dates[selectedDateIndex];
+  const selectedDate = dates[selectedDateIndex],
+        selectedTime = configLoaded ? new Date(selectedDate).getTime() : null,
+        selectedCountry = countrySelectEntries[selectedCountryId],
+        selectedCountryKey = configLoaded ? alpha2ToId[selectedCountry.alpha2] : null;
 
-  const activeData = dataLoaded ? indexedCaseData[activeDate] : null;
+  const selectedDataDate = configLoaded ? (
+    selectedTime > maxDatePerId[selectedCountryKey]['time'] ? (
+      maxDatePerId[selectedCountryKey]['date']
+    ) : selectedDate
+  ) : selectedDate;
 
-  const chartTime = dataLoaded ? new Date(activeDate).getTime() : undefined;
+  const selectedData = (configLoaded && nationalDataLoaded) ? (
+    nationalData[alpha2ToId[selectedCountry.alpha2]]['dates'][selectedDataDate]
+  ) : null;
+
+  const chartTime = !!selectedDataDate ? new Date(selectedDataDate).getTime() : undefined;
+
+  const chartData = useMemo(
+    () => {
+      if(configLoaded && nationalDataLoaded) {
+        return Object.entries(nationalData[selectedCountryKey]['dates'])
+          .sort((kv1, kv2) => (new Date(kv1[0]).getTime() > new Date(kv2[0]).getTime() ? 1 : -1))
+          .map((kv) => ({
+            x: new Date(kv[0]).getTime(),
+            y: kv[1][activeCaseType.id],
+          }));
+      }
+      return [];
+    },
+    [configLoaded, nationalDataLoaded, activeCaseType.id, configLoaded, selectedCountryId]
+  );
 
   const isSelectedCountry = useCallback(
-    (countryCode, countryName) => {
-      return (
-          selectedCountryId === countryCode ||
-              selectedCountryId === 'global' ||
-              (selectedCountryId === "eac" && eacCodes.includes(countryCode))
-      );
+    (alpha2) => {
+      if(!!countrySelectEntries) {
+        return (
+          selectedCountry.alpha2 === alpha2 ||
+            selectedCountryId === 'global' ||
+            (selectedCountryId === "eac" && eacAlpha2.includes(alpha2))
+        );
+      } else {
+        return true;
+      }
+
     },
     [selectedCountryId]
   );
 
-  const chartData = useMemo(
-    () =>
-      caseData
-        .filter((d) => d.code === selectedCountryId)
-        .sort((a, b) => (a.date > b.date ? 1 : -1))
-        .map((d, i) => ({
-          x: new Date(d.date).getTime(),
-          y: d[activeCaseType.id],
-        })),
-    [activeCaseType.id, caseData, selectedCountryId]
-  );
-
-  const scatterPlotLayer = useMemo(
-    () =>
-      new MapboxLayer({
-        id: "scatter-layer",
-        type: ScatterplotLayer,
-        minZoom: 8,
-        maxZoom: 12,
-        opacity: 0.4,
-        filled: true,
-        stroked: true,
-        highlightColor: [87, 102, 32],
-        lineWidthUnits: "pixels",
-        getPosition: (d) => d.coordinates,
-        pickable: true,
-        onHover: ({object}) => {
-          if(!!object) {
-            setPopupDetails(object);
-            setPopupEnabled(true);
-          } else {
-            setPopupDetails(null);
-            setPopupEnabled(false);
-          }
-        }
-      }), []);
-
-  // Hack to avoid Deck.gl from messing with the cursor.
-  // To be removed when we move away from deck.gl and the
-  // scatter plot layer to a vector-tile based solution.
-  if(!!scatterPlotLayer.deck) {
-    scatterPlotLayer.deck._updateCursor = () => {};
-  }
-
   const popup = popupEnabled ? (
     <PopupContent
-      object={popupDetails}
+      details={popupDetails}
+      data={nationalData}
+      selectedDate={selectedDate}
+      maxDatePerId={maxDatePerId}
     />
   ) : null;
 
-  if(dataLoaded) {
-    scatterPlotLayer.setProps({
-      data: caseData.filter(d => {
-        return !!d.coordinates && (dates[selectedDateIndex] > maxDatePerCountry[d.code] ? (
-          d.date === maxDatePerCountry[d.code]) : d.date === dates[selectedDateIndex]);
-      }),
-      getLineWidth: d =>
-         isSelectedCountry(d.code, d.name) ? 1 : 0.5,
-      getRadius: d =>
-        radius * 700 * Math.pow(d[activeCaseType.id], 0.3),
-      getFillColor: d =>
-        isSelectedCountry(d.code, d.name)
-        ? activeCaseType.colorArray
-        : [220, 220, 220],
-    });
-  }
-
   useEffect(() => {
-    if(!mapInitNeeded) {
-      mapElement.current._map.fitBounds(eacCountries[selectedCountryId].bounds, {
-        padding: 20
-      });
+    if(!mapInitNeeded && configLoaded) {
+      if(selectedCountryId in countrySelectEntries) {
+        mapElement.current._map.fitBounds(countrySelectEntries[selectedCountryId].bounds, {
+          padding: 20
+        });
+      }
     }
   }, [selectedCountryId]);
 
@@ -252,6 +271,49 @@ export default () => {
       setMapInitNeeded(false);
     }
   };
+
+  // Style the map through setting the feature state
+  useEffect(() => {
+    if (!mapInitNeeded && configLoaded) {
+      if(nationalDataLoaded) {
+        Object.entries(nationalData).forEach(([key, data]) => {
+          if(data.map) {
+            const valueDate = (selectedTime > maxDatePerId[key]['time'] ? (
+              maxDatePerId[key]['date']) : selectedDate),
+                  dataAtDate = data ? data['dates'][valueDate] : null,
+                  value = dataAtDate ? dataAtDate[activeCaseType.id] : 0.0,
+                  isSelected = isSelectedCountry(data.a2),
+                  lineWidth = isSelected ? 1 : 0.5;
+
+            mapElement.current._map.setFeatureState(
+              { source: "case-points", sourceLayer: "points", id: parseInt(key) },
+              {
+                isActive: isSelected ? 1 : 0,
+                visible: data.map ? 1 : 0,
+                radius: radius2 * Math.pow(value, 0.3),
+                lineWidth: lineWidth
+              }
+            );
+          }
+        });
+      }
+    }
+  }, [
+    selectedCountryId,
+    selectedDateIndex,
+    mapInitNeeded,
+    nationalDataLoaded,
+    countyDataLoaded,
+    configLoaded,
+    activeCaseType,
+  ]);
+
+  const countriesToList = Object.entries(eacCountries)
+        .filter(kv => eacAlpha2.includes(kv[1].alpha2))
+        .reduce((obj, kv) => {
+          obj[kv[0]] = kv[1];
+          return obj;
+        }, {});
 
   return (
     <div className="viz cases">
@@ -351,8 +413,27 @@ export default () => {
                     mapInitNeeded && mapInit(map);
                   }}
                 </MapContext.Consumer>
-                <CustomLayer layer={scatterPlotLayer} />
                 <NavigationControl showZoom position='top-right' />
+
+                <Source {...pointLayerSource} />
+                <Layer
+                  id="case-points"
+                  type="circle"
+                  source="case-points"
+                  source-layer="points"
+                  paint={getCirclePaintStyle(activeCaseType)}
+                  onHover={(e) => {
+                    setPopupDetails({
+                      coords: e.lngLat,
+                      feature: e.features[0],
+                    });
+                    setPopupEnabled(true);
+                  }}
+                  onLeave={(e) => {
+                    setPopupEnabled(false);
+                  }}
+                />
+
 
                 {/* Mask Layer */}
                 { config.features.maskFeature && <MaskLayer /> }
@@ -366,13 +447,19 @@ export default () => {
           </section>
         </div>
         <div className="secondary">
-          {dataLoaded && !!activeData && (
+          {!!selectedData && (
             <>
               <section className={`section-numeral`}>
-                <Numbers eac={activeData[selectedCountryId]} />
-                {config.features.tableFeature &&
-                  selectedCountryId === "eac" && (
-                    <Table countries={activeData} />
+                <Numbers selectedData={selectedData} />
+                {config.features.tableFeature && nationalDataLoaded && configLoaded &&
+                 selectedCountryId === "eac" && (
+                   <Table
+                     countries={countriesToList}
+                     nationalData={nationalData}
+                     selectedDate={selectedDate}
+                     alpha2ToId={alpha2ToId}
+                     maxDatePerId={maxDatePerId}
+                   />
                   )}
               </section>
               <section className="section-chart">
@@ -380,16 +467,20 @@ export default () => {
                   color={activeCaseType.colorHex}
                   data={chartData}
                   date={chartTime}
-                  indicator={activeData[selectedCountryId][activeCaseType.id]}
+                  indicator={selectedData[activeCaseType.id]}
                 />
               </section>
-              {config.features.tableFeature &&
+              {config.features.tableFeature && nationalDataLoaded && configLoaded &&
                selectedCountryId !== "eac" && (
                 <section className="section-numeral">
                   <h3 style={{ marginTop: 0 }}>Other countries</h3>
                   <Table
-                    countries={activeData}
+                    countries={countriesToList}
                     selectedCountryId={selectedCountryId}
+                    nationalData={nationalData}
+                    selectedDate={selectedDate}
+                    alpha2ToId={alpha2ToId}
+                    maxDatePerId={maxDatePerId}
                   />
                 </section>
               )}

@@ -72,21 +72,30 @@ const eacCodes = [
   "uganda"
 ];
 
+const eacAlpha2 = [
+  "BI",
+  "KE",
+  "RW",
+  "SS",
+  "TZ",
+  "UG"
+];
+
 const eacCountries = {
-  eac: { name: "All EAC Countries", alpha3: 'EAC', disabled: false,
-         bounds: [[24.12, -11.78], [41.89, 12.26]] },
-  burundi: { name: "Burundi", alpha3: 'BDI', disabled: false,
-             bounds: [[28.986, -4.463], [30.833, -2.303]]},
-  kenya: { name: "Kenya", alpha3: 'KEN', disabled: false,
-           bounds: [[33.89, -4.677], [41.885, 5.03]] },
-  rwanda: { name: "Rwanda", alpha3: 'RWA', disabled: false,
-            bounds: [[28.857, -2.826], [30.887, -1.058]] },
-  "south-sudan": { name: "South Sudan", alpha3: 'SSD', disabled: false,
-                   bounds: [[24.121, 3.49], [35.92, 12.216]] },
-  tanzania: { name: "Tanzania", alpha3: 'TZA', disabled: false,
-              bounds: [[29.321, -11.731], [40.449, -0.985]] },
-  uganda: { name: "Uganda", alpha3: 'UGA', disabled: false,
-            bounds: [[29.548, -1.475], [35.006, 4.219]] }
+  eac: { name: "All EAC Countries", alpha2: 'XE', alpha3: 'EAC', disabled: false,
+         bounds: [[24.12, -11.78], [41.89, 12.26]], hasFlag: false },
+  burundi: { name: "Burundi", alpha2: 'BI', alpha3: 'BDI', disabled: false,
+             bounds: [[28.986, -4.463], [30.833, -2.303]], hasFlag: true },
+  kenya: { name: "Kenya", alpha2: 'KE', alpha3: 'KEN', disabled: false,
+           bounds: [[33.89, -4.677], [41.885, 5.03]], hasFlag: true },
+  rwanda: { name: "Rwanda", alpha2: 'RW', alpha3: 'RWA', disabled: false,
+            bounds: [[28.857, -2.826], [30.887, -1.058]], hasFlag: true },
+  "south-sudan": { name: "South Sudan", alpha2: 'SS',alpha3: 'SSD', disabled: false,
+                   bounds: [[24.121, 3.49], [35.92, 12.216]], hasFlag: true },
+  tanzania: { name: "Tanzania", alpha2: 'TZ', alpha3: 'TZA', disabled: false,
+              bounds: [[29.321, -11.731], [40.449, -0.985]], hasFlag: true },
+  uganda: { name: "Uganda", alpha2: 'UG', alpha3: 'UGA', disabled: false,
+            bounds: [[29.548, -1.475], [35.006, 4.219]], hasFlag: true }
 };
 
 const caseTypes = [
@@ -155,4 +164,4 @@ export const changeCountrySelectEntries = (
   setCountrySelectEntries(newCountrySelectEntries);
 };
 
-export { abbreviateNumber, formatNumber, eacCodes, eacCountries, caseTypes };
+export { abbreviateNumber, formatNumber, eacCodes, eacAlpha2, eacCountries, caseTypes };

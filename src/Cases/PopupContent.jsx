@@ -4,16 +4,27 @@ import { Popup } from "@urbica/react-map-gl";
 import { formatNumber } from "../util";
 
 export default function PopupContent({
-  object
+  details,
+  data,
+  selectedDate,
+  maxDatePerId
 }) {
-  if (!object) return null;
+  if (!details) return null;
 
-  const name = object.name,
-        date = object.date,
-        confirmed = object.cases,
-        active = object.active,
-        recovered = object.recovered,
-        deaths = object.deaths;
+  if(!(details.feature.id in data)) return null;
+
+  const key = details.feature.id,
+        valueDate = (new Date(selectedDate).getTime() > maxDatePerId[key]['time'] ? (
+          maxDatePerId[key]['date']) : selectedDate),
+        caseInfo = data[key]['dates'][valueDate];
+
+  const geom = details.feature.geometry,
+        name = details.feature.properties.displayName,
+        date = valueDate,
+        confirmed = caseInfo.cases,
+        active = caseInfo.active,
+        recovered = caseInfo.recovered,
+        deaths = caseInfo.deaths;
 
   const rows = [
     <tr key='popup-confirmed'>
@@ -44,7 +55,7 @@ export default function PopupContent({
     </>
   );
   return (
-    <Popup closeButton={false} longitude={object.coordinates[0]} latitude={object.coordinates[1]}>
+    <Popup closeButton={false} longitude={geom.coordinates[0]} latitude={geom.coordinates[1]}>
       {content}
     </Popup>
   );

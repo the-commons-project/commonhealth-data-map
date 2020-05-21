@@ -9,7 +9,13 @@ const FEATURES = {
 
   // TODO: These features are a for-now hack; to be replaced.
   maskFeature: false,
-  tableFeature: true
+  tableFeature: true,
+
+  // Feature to show county-level US data; not currently implemented.
+  countyCasesFeature: false,
+
+  // Feature to show country flags in dropdowns and tables
+  showFlagsFeature: false
 };
 
 // Each config is identified by a code, which is provided via the URL
@@ -50,7 +56,7 @@ const CONFIGS = [
       // TODO: Handle countries better.
       country: 'global',
       countries: {
-        global: { name: "Global", alpha3: 'GLB', disabled: false, hasFlag: false }
+        global: { name: "Global", alpha2: 'XG', alpha3: 'GLB', disabled: false, hasFlag: false }
       }
     }
   },
@@ -71,7 +77,8 @@ const CONFIGS = [
     },
     features: {
       exampleFeature: true,
-      maskFeature: true
+      maskFeature: true,
+      showFlagsFeature: true
     },
     defaults: {
       viewport:  {

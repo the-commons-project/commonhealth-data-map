@@ -50,6 +50,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
 
         ## Cases data ##
 
+        cp "${DIR}/../data-processing/data/published/jhu-case-data.json" build/data/cases/
         cp "${DIR}/../data-processing/data/published/case-codes-to-ids.json" build/data/cases/
         cp "${DIR}/../data-processing/data/published/case-config.json" build/data/cases/
         cp "${DIR}/../data-processing/data/published/case-data.json" build/data/cases/
