@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { mobilityLayerConfig, aggregationTypes } from './config';
+import { mobilityLayerConfig } from './config';
 import * as interpolate from 'color-interpolate';
 
 export const getLayerPaint = (aggTypeMatchValue) => {

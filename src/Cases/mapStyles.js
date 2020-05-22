@@ -1,18 +1,9 @@
-import * as _ from "underscore";
-
 export function getCirclePaintStyle(activeCaseType, maxCircleSize) {
   const visible = ["number", ["feature-state", "visible"], 0],
     isActive = ["number", ["feature-state", "isActive"], 0],
     cases = ["number", ["feature-state", "cases"], 0];
 
   return {
-    "circle-opacity": [
-      "case",
-      // Check to make sure property is not undefined
-      ["==", visible, 1],
-      1,
-      0
-    ],
     "circle-radius": [
       "interpolate",
       ["linear"],
@@ -33,15 +24,25 @@ export function getCirclePaintStyle(activeCaseType, maxCircleSize) {
     ],
     "circle-stroke-opacity": [
       "case",
-      ["==", isActive, 1],
-      1,
-      0.45
+      ["==", visible, 1],
+      [
+        "case",
+        ["==", isActive, 1],
+        1,
+        0.45
+      ],
+      0
     ],
     "circle-opacity": [
       "case",
-      ["==", isActive, 1],
-      0.85,
-      0.25
+      ["==", visible, 1],
+      [
+        "case",
+        ["==", isActive, 1],
+        0.85,
+        0.25
+      ],
+      0
     ],
     "circle-color": [
       "case",

@@ -6,8 +6,6 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { MapboxLayer } from "@deck.gl/mapbox";
-import { ScatterplotLayer } from "@deck.gl/layers";
 import MapGL, {
   Layer,
   NavigationControl,
@@ -17,8 +15,6 @@ import MapGL, {
 } from "@urbica/react-map-gl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
-import groupBy from "lodash.groupby";
-import keyBy from "lodash.keyby";
 
 import MaskLayer from "../MaskLayer";
 import PopupContent from "./PopupContent";
@@ -30,7 +26,6 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import mapStyle from "../mapStyle.json";
 
 import {
-  eacCodes,
   eacAlpha2,
   caseTypes,
   changeDates,
@@ -85,14 +80,12 @@ export default () => {
     setSelectedDateIndex,
     setCountrySelectorEnabled,
     selectedCountryId,
-    setReady,
     countrySelectEntries,
     setCountrySelectEntries,
     setSelectedCountryId,
     cases: {
       nationalData,
       setNationalData,
-      countyData,
       setCountyData,
       caseDates,
       setCaseDates,
@@ -163,6 +156,15 @@ export default () => {
           setMaxDatePerId(maxDates);
           setCaseDates(dates);
           setAlpha2ToId(alpha2ToId);
+
+          // TODO: Set Countries to list. Filter for EAC.
+          // changeCountrySelectEntries(
+          //   countries,
+          //   selectedCountryId,
+          //   setCountrySelectEntries,
+          //   setSelectedCountryId,
+          //   config.defaults.country
+          // );
 
           setConfigLoaded(true);
         });

@@ -1,7 +1,5 @@
 import React, { useContext} from "react";
 
-import { eacCodes } from "../util";
-
 import { ConfigurationContext } from "../ConfigurationProvider";
 
 export default function Table({
@@ -34,6 +32,7 @@ export default function Table({
             <img
               className="table-icon"
               src={`/flag-${code}.png`}
+              alt=""
             />
           )}
           {country.name}

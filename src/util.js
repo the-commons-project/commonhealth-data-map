@@ -144,7 +144,7 @@ export const changeDates = (
 
   const currentDate = currentDates[currentSelectedDateIndex],
         newDateIndex = dates.indexOf(currentDate),
-        newSelectedDateIndex = newDateIndex == -1 ? dates.length - 1 : newDateIndex;
+        newSelectedDateIndex = newDateIndex === -1 ? dates.length - 1 : newDateIndex;
 
   setDates(dates);
   setSelectedDateIndex(newSelectedDateIndex);

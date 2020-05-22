@@ -1,12 +1,10 @@
 import React, { useContext } from "react";
 
-import MapGL, {
+import {
   Layer,
   Source,
   MapContext,
 } from "@urbica/react-map-gl";
-
-import * as turf from "@turf/turf";
 
 import StateContext from "../State";
 import { ConfigurationContext } from "../ConfigurationProvider";
@@ -18,11 +16,9 @@ export default () => {
   const config = useContext(ConfigurationContext);
 
   const {
-    setMask,
     setSelectedCountryId
   } = useContext(StateContext);
 
-  const globalMask = {"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-180,-90],[180,-90],[180,90],[-180,90],[-180,-90]]]}};
   const countrySource = {
     id: 'countries',
     type: "vector",

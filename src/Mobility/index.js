@@ -165,13 +165,11 @@ export default () => {
 
   const chartData = useMemo(() => {
     if (dataLoaded) {
-      const alpha3 = countrySelectEntries[selectedCountryId].alpha3,
-        countryId = codeToId[alpha3],
-        dataByDate = !!countryData ? countryData[selectedLayer] : {};
+      const dataByDate = !!countryData ? countryData[selectedLayer] : {};
 
       return (
         Object.entries(dataByDate)
-          // .sort((kv1, kv2) => (kv1[0] > kv1[0] ? 1 : -1))
+          .sort((kv1, kv2) => (new Date(kv1[0]).getTime() > new Date(kv2[0]).getTime() ? 1 : -1))
           .map(([date, value]) => ({
             x: new Date(date).getTime(),
             y: value,
@@ -184,7 +182,6 @@ export default () => {
     dataLoaded,
     countrySelectEntries,
     selectedCountryId,
-    codeToId,
     countryData,
     selectedLayer,
   ]);

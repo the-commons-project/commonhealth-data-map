@@ -1,5 +1,4 @@
 import React from "react";
-import * as _ from "underscore";
 import { Popup } from "@urbica/react-map-gl";
 import { formatNumber } from "../util";
 
