@@ -76,7 +76,7 @@ const CONFIGS = [
       },
     ],
     strings: {
-      headerText: "East-African Community",
+      headerText: "East African Community",
     },
     features: {
       exampleFeature: true,
