@@ -1,7 +1,7 @@
 import React from "react";
 import * as _ from "underscore";
 import { Popup } from "@urbica/react-map-gl";
-import { aggregationTypes, mobilityLayerConfig } from "./config";
+import { mobilityLayerConfig } from "./config";
 import { formatNumber } from "../util";
 
 export default function PopupContent({

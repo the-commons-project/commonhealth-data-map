@@ -32,19 +32,22 @@ const App = () => {
   const [ready, setReady] = useState(false);
 
   // Cases Tab
-  const [caseData, setCaseData] = useState([]);
-  const [indexedCaseData, setIndexedCaseData] = useState({});
+  const [nationalData, setNationalData] = useState([]);
+  const [countyData, setCountyData] = useState([]);
   const [caseDates, setCaseDates] = useState([]);
-  const [maxDatePerCountry, setMaxDatePerCountry] = useState(null);
+  const [maxDatePerId, setMaxDatePerId] = useState(null);
+  const [alpha2ToId, setAlpha2ToId] = useState(null);
   const cases = {
-    caseData,
-    setCaseData,
-    indexedCaseData,
-    setIndexedCaseData,
+    nationalData,
+    setNationalData,
+    countyData,
+    setCountyData,
     caseDates,
     setCaseDates,
-    maxDatePerCountry,
-    setMaxDatePerCountry
+    maxDatePerId,
+    setMaxDatePerId,
+    alpha2ToId,
+    setAlpha2ToId
   };
 
   // Mobility tab

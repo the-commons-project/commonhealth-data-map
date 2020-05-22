@@ -19,8 +19,13 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     mkdir -p ${DATA_PROC_DIR}/notebook-logs
 
     echo
-    echo "==UPDATING JHU DATA=="
+    echo "==UPDATING CASE DATA=="
     echo
+
+    papermill \
+        ${DATA_PROC_DIR}/notebooks/generate_points_from_JHU.ipynb \
+        -p data_dir ${DATA_PROC_DIR}/data \
+        ${DATA_PROC_DIR}/notebook-logs/generate_points_from_JHU.ipynb
 
     papermill \
         ${DATA_PROC_DIR}/notebooks/jhu_data_processing.ipynb \

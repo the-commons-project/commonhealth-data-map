@@ -12,7 +12,6 @@
     "color-interpolate": "1.0.5",
     "dateformat": "3.0.3",
     "d3-scale": "2.0.0",
-    "deck.gl": "8.1.1",
     "lodash.groupby": "^4.6.0",
     "lodash.keyby": "^4.6.0",
     "mapbox-gl": "^1.9.1",
