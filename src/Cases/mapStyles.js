@@ -31,8 +31,18 @@ export function getCirclePaintStyle(activeCaseType, maxCircleSize) {
       6,
       1.5
     ],
-    "circle-stroke-opacity": 1,
-    "circle-opacity": 0.85,
+    "circle-stroke-opacity": [
+      "case",
+      ["==", isActive, 1],
+      1,
+      0.45
+    ],
+    "circle-opacity": [
+      "case",
+      ["==", isActive, 1],
+      0.85,
+      0.25
+    ],
     "circle-color": [
       "case",
       ["==", isActive, 1],
