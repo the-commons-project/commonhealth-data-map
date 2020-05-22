@@ -107,3 +107,23 @@
   background: #f2f2f2;
   border: 1px solid rgba(0, 0, 0, 0);
 }
+
+@media (max-width: 767px) {
+  .header-secondary {
+    align-items: initial;
+    height: auto;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .header-tabs a,
+  .header-tabs span {
+    height: 44px;
+  }
+  .header-logo {
+    height: 40px;
+  }
+  .header-title {
+    font-size: 16px;
+  }
+}

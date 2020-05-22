@@ -3,9 +3,9 @@ import * as _ from 'underscore';
 export const loadConfig = (config) => {
   // Handle aggregation type properties
   let aggregationConfig = config['aggregations'];
-  _.pairs(aggregationConfig).map(kv => {
+  _.pairs(aggregationConfig).forEach((kv) => {
     let aggConfig = aggregationTypes[kv[0]];
-    _.pairs(kv[1]).map(kv2 => {
+    _.pairs(kv[1]).forEach((kv2) => {
       aggConfig[kv2[0]] = kv2[1];
     });
   });
@@ -24,10 +24,6 @@ export const aggregationTypes = {
   //     default: true
   // }
 };
-
-const colorRamp = [
-  '#161B58', '#558AB3', '#E9F3E6', '#F9EDB7', '#EDAD81'
-];
 
 export const mobilityLayerConfig = {
   retail_and_recreation: {

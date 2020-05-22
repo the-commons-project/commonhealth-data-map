@@ -1,9 +1,12 @@
 import React, { useContext, useState, useEffect, useMemo, useRef } from "react";
 import * as _ from "underscore";
-import MapGL, { Layer, Source, MapContext } from "@urbica/react-map-gl";
+import MapGL, { Layer, Source, MapContext, NavigationControl, AttributionControl } from "@urbica/react-map-gl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import Loading from "../Loading";
+
+import MaskLayer from "../MaskLayer";
+import CountriesLayer from "../CountriesLayer";
 
 import { loadConfig, mobilityLayerConfig, aggregationTypes } from "./config";
 import { getLayerPaint } from "./mapStyles";
@@ -12,23 +15,16 @@ import Legend from "./Legend";
 import Table from "./Table";
 import Chart from "./Chart";
 
-import MaskLayer from "../MaskLayer";
-
-import {
-  changeDates,
-  tabCodes,
-  changeCountrySelectEntries,
-} from "../util";
+import { changeDates, tabCodes, changeCountrySelectEntries } from "../util";
 
 import "./index.css";
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-import 'mapbox-gl/dist/mapbox-gl.css';
+import "mapbox-gl/dist/mapbox-gl.css";
 
 import StateContext from "../State";
 import { ConfigurationContext } from "../ConfigurationProvider";
 
-const MAPBOX_ACCESS_TOKEN =
-  "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
+import mapStyle from "../mapStyle.json";
 
 const boundarySource = {
   type: "vector",
@@ -45,12 +41,16 @@ export default () => {
   const config = useContext(ConfigurationContext);
 
   const {
+    setLastUpdatedDate,
+    setSources,
+    setDateSelectorEnabled,
     dates,
     setDates,
     activeTab,
     setActiveTab,
     selectedDateIndex,
     setSelectedDateIndex,
+    setCountrySelectorEnabled,
     selectedCountryId,
     setReady,
     countrySelectEntries,
@@ -84,11 +84,10 @@ export default () => {
   const [popupEnabled, setPopupEnabled] = useState(false);
   const [popupDetails, setPopupDetails] = useState();
 
-  const selectedDate = dates[selectedDateIndex];
+  const selectedDate = !!mobilityDates && mobilityDates[mobilityDates.length - 1] < dates[selectedDateIndex] ? (
+    mobilityDates[mobilityDates.length - 1]) : dates[selectedDateIndex];
 
-  const chartTime = dataLoaded
-    ? new Date(dates[selectedDateIndex]).getTime()
-    : undefined;
+  const chartTime = dataLoaded ? new Date(selectedDate).getTime() : undefined;
   const mapElement = useRef(null);
 
   const alpha3 = countrySelectEntries[selectedCountryId].alpha3,
@@ -103,8 +102,23 @@ export default () => {
       ? aggregationTypes[aggType].breaks[selectedLayer]
       : null;
 
-  // Set the active tab.
-  useEffect(() => setActiveTab(tabCodes.mobility), [setActiveTab]);
+  // On tab activation.
+  useEffect(() => {
+    setDateSelectorEnabled(true);
+    setCountrySelectorEnabled(true);
+
+
+    setActiveTab(tabCodes.mobility);
+    if(!!mobilityDates) {
+      setLastUpdatedDate(mobilityDates[mobilityDates.length - 1]);
+    } else {
+      setLastUpdatedDate(null);
+    }
+    setSources([
+      <a href="https://www.google.com/covid19/mobility/">Google Mobility Data</a>
+    ]);
+
+  }, [setActiveTab]);
 
   // Fetch all the data for this tab.
   useEffect(() => {
@@ -118,6 +132,7 @@ export default () => {
         loadConfig(config);
         setMobilityData(data);
         setMobilityDates(config.dates);
+        setLastUpdatedDate(config.dates[config.dates.length - 1]);
         setCodeToId(code2id);
         setDataLoaded(true);
         setReady(true);
@@ -150,13 +165,11 @@ export default () => {
 
   const chartData = useMemo(() => {
     if (dataLoaded) {
-      const alpha3 = countrySelectEntries[selectedCountryId].alpha3,
-        countryId = codeToId[alpha3],
-        dataByDate = !!countryData ? countryData[selectedLayer] : {};
+      const dataByDate = !!countryData ? countryData[selectedLayer] : {};
 
       return (
         Object.entries(dataByDate)
-          // .sort((kv1, kv2) => (kv1[0] > kv1[0] ? 1 : -1))
+          .sort((kv1, kv2) => (new Date(kv1[0]).getTime() > new Date(kv2[0]).getTime() ? 1 : -1))
           .map(([date, value]) => ({
             x: new Date(date).getTime(),
             y: value,
@@ -165,7 +178,13 @@ export default () => {
     } else {
       return null;
     }
-  }, [dataLoaded, selectedCountryId, codeToId, countryData, selectedLayer]);
+  }, [
+    dataLoaded,
+    countrySelectEntries,
+    selectedCountryId,
+    countryData,
+    selectedLayer,
+  ]);
 
   // Handle setting feature state based on selected layer.
   useEffect(() => {
@@ -189,13 +208,26 @@ export default () => {
     selectedDate,
   ]);
 
+  // Zoom to selected country, if the selected country has bounds defined.
+  useEffect(() => {
+    if(!mapInitNeeded) {
+      if(!!config.defaults.countries[selectedCountryId].bounds) {
+        mapElement.current._map.fitBounds(config.defaults.countries[selectedCountryId].bounds, {
+          padding: 20
+        });
+      }
+    }
+  }, [selectedCountryId]);
+
   const mapInit = (map) => {
     if (mapInitNeeded) {
       setMapInitNeeded(false);
     }
   };
 
-  const popup = popupEnabled ? (
+  const popup = popupEnabled && (
+    popupDetails.feature && !!mobilityData[popupDetails.feature.id.toString()]
+  ) && (
     <PopupContent
       feature={popupDetails.feature}
       coordinates={popupDetails.coords}
@@ -203,7 +235,7 @@ export default () => {
       aggType={aggType}
       selectedDate={selectedDate}
     />
-  ) : null;
+  );
 
   const countryDataAvailable = !!mobilityData && countryIntId in mobilityData;
 
@@ -243,7 +275,7 @@ export default () => {
                 popoverProps={{ minimal: true }}
                 itemRenderer={(layerId, { handleClick, modifiers }) => {
                   return (
-                    <span>
+                    <span key={layerId}>
                       <MenuItem
                         onClick={handleClick}
                         active={selectedLayer === layerId}
@@ -275,8 +307,7 @@ export default () => {
                 {...viewport}
                 onViewportChange={(viewport) => setViewport(viewport)}
                 style={{ width: "100%", height: "100%" }}
-                mapStyle="mapbox://styles/mapbox/light-v9"
-                accessToken={MAPBOX_ACCESS_TOKEN}
+                mapStyle={mapStyle}
                 renderWorldCopies={false}
                 maxBounds={[
                   [-180, -90],
@@ -336,10 +367,17 @@ export default () => {
                   }}
                 />
                 {popup}
-                { config.features.maskFeature && <MaskLayer /> }
+                {config.features.maskFeature && <MaskLayer opacity={0.45}/>}
+                <CountriesLayer />
                 <Legend
                   classBreaks={currentBreaks}
                   selectedLayer={selectedLayer}
+                />
+                <NavigationControl showZoom position='top-right' />
+                <AttributionControl
+                  compact={true}
+                  position="bottom-right"
+                  customAttribution='Sources: Esri, HERE, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors, and the GIS User Community'
                 />
               </MapGL>
             </div>
@@ -351,7 +389,8 @@ export default () => {
               {!countryDataAvailable && (
                 <>
                   <h3 className="mobility-data-not-available-header">
-                    {countrySelectEntries[selectedCountryId].name} data not available
+                    {countrySelectEntries[selectedCountryId].name} data not
+                    available
                   </h3>
                   <p>
                     Try switching to a different country to view its mobility
@@ -408,14 +447,6 @@ export default () => {
                 />
               </section>
             )}
-            <section style={{ padding: "0 10px 10px" }}>
-              <div className="source">
-                <b>Source:</b>{" "}
-                <a href="https://www.google.com/covid19/mobility/">
-                  Google Mobility Data
-                </a>
-              </div>
-            </section>
           </>
         </div>
       </main>

@@ -232,6 +232,37 @@ header input {
   top: 1px;
 }
 
+.footer-primary {
+  height: 35px;
+  background-color: #fcfcfc;
+  border-top: 1px solid #ececec;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  z-index: 10;
+  font-size: 14px;
+  color: #737373;
+}
+
+.footer-logo {
+  text-align: right;
+  height: 20px;
+  flex: 1;
+}
+
+.footer-logo img {
+  height: 100%;
+  margin-left: 10px;
+}
+
+#footer-logo-small {
+  display: none;
+}
+
+.footer-sep-newline {
+  display: none;
+}
+
 .date {
   margin-right: 10px;
   width: 90px;
@@ -479,11 +510,19 @@ main {
 .mapboxgl-popup-content {
   pointer-events: none;
   font-family: "ibm plex sans";
+  min-width: 200px;
 }
 
 .popup-heading {
   font-size: 15px;
   font-weight: 700;
+  margin-bottom: 6px;
+  color: #262e34;
+}
+
+.popup-date {
+  font-size: 13px;
+  font-weight: 400;
   margin-bottom: 6px;
   color: #262e34;
 }
@@ -635,7 +674,6 @@ main {
   .map-container {
     min-height: 300px;
     height: 70vh;
-    pointer-events: none;
   }
   .primary {
     border-right: none;
@@ -698,6 +736,27 @@ main {
   }
   .show-case-table .bp3-icon {
     margin-right: 4px;
+  }
+
+  #footer-logo-large {
+    display: none;
+  }
+
+  #footer-logo-small {
+    display: inline;
+  }
+
+  .footer-sep-newline {
+    display: flex;
+  }
+
+  .footer-sep-slash {
+    display: none;
+  }
+
+  .footer-primary {
+    height: 40px;
+    line-height: 1.2em;
   }
 }
 

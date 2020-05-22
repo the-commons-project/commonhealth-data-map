@@ -19,6 +19,9 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     docker run --rm -it \
         -v $(pwd):/opt/src \
         -p 8888:8888 \
+        -e "CHM_GOOGLEAPI_REFRESH_TOKEN=${CHM_GOOGLEAPI_REFRESH_TOKEN}" \
+        -e "CHM_GOOGLEAPI_CLIENT_ID=${CHM_GOOGLEAPI_CLIENT_ID}" \
+        -e "CHM_GOOGLEAPI_CLIENT_SECRET=${CHM_GOOGLEAPI_CLIENT_SECRET}" \
         --entrypoint jupyter \
         ${IMAGE_NAME} \
         notebook \
