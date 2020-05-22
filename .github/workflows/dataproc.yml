@@ -29,6 +29,9 @@ jobs:
         uses: ./.github/actions/update-data
         with:
           dataprocDirectory: /github/workspace/clone_dir/data-processing
+          googleapi_refresh_token: ${{ secrets.GOOGLEAPI_REFRESH_TOKEN }}
+          googleapi_client_id: ${{ secrets.GOOGLEAPI_CLIENT_ID }}
+          googleapi_client_secret: ${{ secrets.GOOGLEAPI_CLIENT_SECRET }}
 
       - name: Commit any data changes
         id: commit_changes

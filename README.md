@@ -86,6 +86,29 @@ If you create data for publishing to the site, create it in the `data/published`
 and modify the `cibuild` script to include moving it to the
 correct location or performing any secondary processing like vector tile generation.
 
+## Automated Data Update
+
+The automated data update runs through a GitHub Actions workflow,
+located in `.github/workflows/dataproc.yml`. This runs the custom Docker action located
+at `.github/actions/update-data`, which runs the appropriate notebooks through papermill
+in the the data processing container in the a similar
+manner as described above. The workflow then checks to see if there are data updates,
+and if so, will push up changes, make a PR, and merge changes in if Netlify passes its build.
+
+The below flowchart shows the broad-strokes logic of the workflow:
+
+![dataproc-workflow](./automatic-data-update-workflow.png)
+
+To test changes to the workflow, you can push to the `feature/automatic-data-update` branch to kick
+off GitHub actions. Otherwise this workflow will run against the `develop` branch on an hourly schedule.
+
+The GitHub actions rely on the following GitHub secrets:
+
+- `GOOGLEAPI_REFRESH_TOKEN`: The Google API refresh token to use for accessing google drive
+- `GOOGLEAPI_CLIENT_ID`: The Google API client ID to use for accessing google drive
+- `GOOGLEAPI_CLIENT_SECRET`: The Google API client secret to use for accessing google drive
+
+
 ## Scripts
 
 | Name            | Description                                               |
