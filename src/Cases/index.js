@@ -9,9 +9,9 @@ import React, {
 import { MapboxLayer } from "@deck.gl/mapbox";
 import { ScatterplotLayer } from "@deck.gl/layers";
 import MapGL, {
-  CustomLayer,
   Layer,
   NavigationControl,
+  AttributionControl,
   MapContext,
   Source,
 } from "@urbica/react-map-gl";
@@ -26,7 +26,8 @@ import CountriesLayer from "../CountriesLayer";
 import { getCirclePaintStyle } from "./mapStyles.js";
 
 import "../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-import 'mapbox-gl/dist/mapbox-gl.css';
+import "mapbox-gl/dist/mapbox-gl.css";
+import mapStyle from "../mapStyle.json";
 
 import {
   eacCodes,
@@ -43,9 +44,6 @@ import Table from "./Table";
 import StateContext from "../State";
 import { ConfigurationContext } from "../ConfigurationProvider";
 
-const MAPBOX_ACCESS_TOKEN =
-      "pk.eyJ1IjoiYXphdmVhIiwiYSI6IkFmMFBYUUUifQ.eYn6znWt8NzYOa3OrWop8A";
-
 const pointLayerSource = {
   id: "case-points",
   type: 'vector',
@@ -56,8 +54,6 @@ const pointLayerSource = {
   minzoom: 0,
   maxzoom: 12,
 };
-
-
 
 export default () => {
   const config = useContext(ConfigurationContext);
@@ -399,12 +395,11 @@ export default () => {
                 {...viewport}
                 onViewportChange={(viewport) => setViewport(viewport)}
                 style={{ width: "100%", height: "100%" }}
-                mapStyle="mapbox://styles/mapbox/light-v9"
+                mapStyle={mapStyle}
                 maxBounds={[
                   [-180, -90],
                   [180, 90],
                 ]}
-                accessToken={MAPBOX_ACCESS_TOKEN}
                 renderWorldCopies={false}
                 ref={mapElement}
               >
@@ -414,6 +409,11 @@ export default () => {
                   }}
                 </MapContext.Consumer>
                 <NavigationControl showZoom position='top-right' />
+                <AttributionControl
+                  compact={true}
+                  position="bottom-right"
+                  customAttribution='Sources: Esri, HERE, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors, and the GIS User Community'
+                />
 
                 <Source {...pointLayerSource} />
                 <Layer
@@ -436,7 +436,7 @@ export default () => {
 
 
                 {/* Mask Layer */}
-                { config.features.maskFeature && <MaskLayer /> }
+                {config.features.maskFeature && <MaskLayer />}
 
                 {/* Countries Layer */}
                 <CountriesLayer />

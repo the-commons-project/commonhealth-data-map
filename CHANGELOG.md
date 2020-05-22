@@ -15,3 +15,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - Integrated data processing changes from eac-dashboard [#38](https://github.com/azavea/commonhealth-data-map/pull/38)
+- Changed basemap to ESRI vector tile basemap [#33](https://github.com/azavea/commonhealth-data-map/pull/59)
