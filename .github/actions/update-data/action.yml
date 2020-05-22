@@ -5,8 +5,21 @@ inputs:
   dataprocDirectory:
     description: Data Processing directory path
     required: true
+  googleapi_refresh_token:
+    description: The Google API refresh token to use for accessing google drive
+    required: true
+  googleapi_client_id:
+    description: The Google API client ID to use for accessing google drive
+    required: true
+  googleapi_client_secret:
+    description: The Google API client secret to use for accessing google drive
+    required: true
 runs:
   using: 'docker'
   image: '../../../data-processing/Dockerfile'
+  env:
+    CHM_GOOGLEAPI_REFRESH_TOKEN: ${{ inputs.googleapi_refresh_token }}
+    CHM_GOOGLEAPI_CLIENT_ID: ${{ inputs.googleapi_client_id }}
+    CHM_GOOGLEAPI_CLIENT_SECRET: ${{ inputs.googleapi_client_secret }}
   args:
     - ${{ inputs.dataprocDirectory }}
