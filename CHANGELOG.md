@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Show last updated date in footer; show todays date in date seletor. [#54](https://github.com/azavea/commonhealth-data-map/pull/54)
 - Added region seletion feature. [#55](https://github.com/azavea/commonhealth-data-map/pull/55)
 - Refactored cases tab to use vector tiles. [#62](https://github.com/azavea/commonhealth-data-map/pull/62)
+- Layer EAC data on top of JHU case data. [#68](https://github.com/azavea/commonhealth-data-map/pull/68)
 
 ### Changed
 - Integrated data processing changes from eac-dashboard [#38](https://github.com/azavea/commonhealth-data-map/pull/38)
