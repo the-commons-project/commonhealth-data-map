@@ -133,7 +133,7 @@ export const changeDates = (
   setSelectedDateIndex
 ) => {
   // Add any missing dates between the last available date and the current date.
-  let date = new Date(newDates[newDates.length - 1]),
+  let date = new Date(newDates[newDates.length - 1] + 'T23:59:59Z'),
       today = new Date();
 
   const dates = newDates.slice();
