@@ -57,6 +57,9 @@ const CONFIGS = [
       country: 'global',
       countries: {
         global: { name: "Global", alpha2: 'XG', alpha3: 'GLB', disabled: false, hasFlag: false }
+      },
+      cases: {
+        "maxCircleSize": 40
       }
     }
   },
@@ -90,7 +93,10 @@ const CONFIGS = [
       },
       country: 'eac',
       countries: eacCountries,
-      baseMask: 'eac'
+      baseMask: 'eac',
+      cases: {
+        "maxCircleSize": 1000
+      }
     }
   },
 ];

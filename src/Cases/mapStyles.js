@@ -1,9 +1,6 @@
 import * as _ from "underscore";
 
-const maxSizeForGlobal = 40;
-const maxSizeForEAC = 1000;
-
-export function getCirclePaintStyle(activeCaseType) {
+export function getCirclePaintStyle(activeCaseType, maxCircleSize) {
   const visible = ["number", ["feature-state", "visible"], 0],
     isActive = ["number", ["feature-state", "isActive"], 0],
     cases = ["number", ["feature-state", "cases"], 0];
@@ -23,7 +20,7 @@ export function getCirclePaintStyle(activeCaseType) {
       0,
       0,
       1250, // Square root of US total cases, around 1.55M on May 21, 2020
-      maxSizeForGlobal
+      maxCircleSize
     ],
     "circle-stroke-width": [
       "interpolate",

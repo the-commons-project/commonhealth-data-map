@@ -420,7 +420,10 @@ export default () => {
                   type="circle"
                   source="case-points"
                   source-layer="points"
-                  paint={getCirclePaintStyle(activeCaseType)}
+                  paint={getCirclePaintStyle(
+                    activeCaseType,
+                    config.defaults.cases.maxCircleSize
+                  )}
                   onHover={(e) => {
                     setPopupDetails({
                       coords: e.lngLat,
