@@ -58,9 +58,6 @@ const pointLayerSource = {
 export default () => {
   const config = useContext(ConfigurationContext);
 
-  const radius = 50;
-  const radius2 = 70000;
-
   const [viewport, setViewport] = useState(config.defaults.viewport);
 
   const [activeCaseType, setActiveCaseType] = useState(caseTypes[0]);
@@ -278,16 +275,18 @@ export default () => {
               maxDatePerId[key]['date']) : selectedDate),
                   dataAtDate = data ? data['dates'][valueDate] : null,
                   value = dataAtDate ? dataAtDate[activeCaseType.id] : 0.0,
-                  isSelected = isSelectedCountry(data.a2),
-                  lineWidth = isSelected ? 1 : 0.5;
+                  isSelected = isSelectedCountry(data.a2);
 
             mapElement.current._map.setFeatureState(
-              { source: "case-points", sourceLayer: "points", id: parseInt(key) },
+              {
+                source: "case-points",
+                sourceLayer: "points",
+                id: parseInt(key)
+              },
               {
                 isActive: isSelected ? 1 : 0,
                 visible: data.map ? 1 : 0,
-                radius: radius2 * Math.pow(value, 0.3),
-                lineWidth: lineWidth
+                cases: value
               }
             );
           }
