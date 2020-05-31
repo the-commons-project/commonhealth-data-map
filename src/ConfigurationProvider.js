@@ -23,7 +23,6 @@ const FEATURES = {
 const CONFIGS = [
   {
     code: "dashboard",
-    default: true,
     assets: [
       {
         type: "logo",
@@ -65,6 +64,7 @@ const CONFIGS = [
   },
   {
     code: "eac",
+    default: true,
     assets: [
       {
         type: "logo",
