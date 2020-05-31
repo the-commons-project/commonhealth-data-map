@@ -112,7 +112,7 @@ const App = () => {
               </StateContext.Provider>
             </ConfigurationProvider>
           </Route>
-          <Redirect from="*" to="/dashboard/cases" />
+          <Redirect from="*" to="/eac/cases" />
         </Switch>
       </Router>
     </div>
