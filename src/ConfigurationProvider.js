@@ -10,6 +10,7 @@ const FEATURES = {
   // TODO: These features are a for-now hack; to be replaced.
   maskFeature: false,
   tableFeature: true,
+  eacOnlyFeature: false,
 
   // Feature to show county-level US data; not currently implemented.
   countyCasesFeature: false,
@@ -81,7 +82,8 @@ const CONFIGS = [
     features: {
       exampleFeature: true,
       maskFeature: true,
-      showFlagsFeature: true
+      showFlagsFeature: true,
+      eacOnlyFeature: true,
     },
     defaults: {
       viewport:  {
