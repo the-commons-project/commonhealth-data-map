@@ -410,6 +410,7 @@ export default () => {
                   [-180, -90],
                   [180, 90],
                 ]}
+                minZoom={config.defaults.cases.minZoom}
                 renderWorldCopies={false}
                 ref={mapElement}
               >

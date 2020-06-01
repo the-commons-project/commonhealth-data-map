@@ -59,7 +59,8 @@ const CONFIGS = [
         global: { name: "Global", alpha2: 'XG', alpha3: 'GLB', disabled: false, hasFlag: false }
       },
       cases: {
-        "maxCircleSize": 40
+        "maxCircleSize": 40,
+        "minZoom": 0
       }
     }
   },
@@ -97,7 +98,8 @@ const CONFIGS = [
       countries: eacCountries,
       baseMask: 'eac',
       cases: {
-        "maxCircleSize": 1000
+        "maxCircleSize": 1000,
+        "minZoom": 4
       }
     }
   },
