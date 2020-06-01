@@ -6,6 +6,7 @@ import { NavLink, useParams } from "react-router-dom";
 import moment from "moment";
 
 import StateContext from "./State";
+import { ConfigurationContext } from "./ConfigurationProvider";
 
 import "../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 
@@ -13,11 +14,17 @@ const formatDateToData = (date) => {
   return moment(date).format("YYYY-MM-DD");
 };
 
-const formatDateReadable = (date) => {
+const formatDateReadable = (date, config) => {
+  if(config.features.forceDateFormatFeature) {
+    return moment(date).format("DD/MM/YYYY");
+  }
+
   return moment(date).format("l");
 };
 
 export default () => {
+  const config = useContext(ConfigurationContext);
+
   const {
     dateSelectorEnabled,
     dates,
@@ -105,7 +112,7 @@ export default () => {
                 {!!dates.length && selectedDateIndex >= 0 && (
                   <DateInput
                     popoverProps={{ minimal: true }}
-                    formatDate={(date) => formatDateReadable(date)}
+                    formatDate={(date) => formatDateReadable(date, config)}
                     minDate={new Date(moment(dates[0], "YYYY-MM-DD"))}
                     maxDate={
                                                              new Date(moment(dates[dates.length - 1], "YYYY-MM-DD"))
@@ -126,7 +133,7 @@ export default () => {
                   max={dates.length - 1}
                   onChange={onDateIndexChange}
                   value={selectedDateIndex}
-                  labelRenderer={(i) => formatDateReadable(dates[i])}
+                  labelRenderer={(i) => formatDateReadable(dates[i], config)}
                   stepSize={1}
                   labelStepSize={(dates.length - 1) / 2 || 1}
                   showTrackFill={false}

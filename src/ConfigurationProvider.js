@@ -11,6 +11,7 @@ const FEATURES = {
   maskFeature: false,
   tableFeature: true,
   eacOnlyFeature: false,
+  forceDateFormatFeature: false,
 
   // Feature to show county-level US data; not currently implemented.
   countyCasesFeature: false,
@@ -85,6 +86,7 @@ const CONFIGS = [
       maskFeature: true,
       showFlagsFeature: true,
       eacOnlyFeature: true,
+      forceDateFormatFeature: true,
     },
     defaults: {
       viewport:  {
