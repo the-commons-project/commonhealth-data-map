@@ -119,7 +119,16 @@ export default () => {
       fetch("/data/cases/case-data.json")
         .then((response) => response.json())
         .then((data) => {
-          setNationalData(data);
+          // Filter to EAC countries only
+          const filteredData = config.features.eacOnlyFeature ? (
+            Object.keys(data)
+              .filter((key) => data[key].a2 == 'XE' ||  eacAlpha2.includes(data[key].a2))
+              .reduce((obj, key) => {
+                obj[key] = data[key];
+                return obj;
+              }, {})
+          ) : data;
+          setNationalData(filteredData);
           setNationalDataLoaded(true);
         });
     }
@@ -401,6 +410,7 @@ export default () => {
                   [-180, -90],
                   [180, 90],
                 ]}
+                minZoom={config.defaults.cases.minZoom}
                 renderWorldCopies={false}
                 ref={mapElement}
               >

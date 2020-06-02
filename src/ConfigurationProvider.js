@@ -10,6 +10,8 @@ const FEATURES = {
   // TODO: These features are a for-now hack; to be replaced.
   maskFeature: false,
   tableFeature: true,
+  eacOnlyFeature: false,
+  forceDateFormatFeature: false,
 
   // Feature to show county-level US data; not currently implemented.
   countyCasesFeature: false,
@@ -58,7 +60,8 @@ const CONFIGS = [
         global: { name: "Global", alpha2: 'XG', alpha3: 'GLB', disabled: false, hasFlag: false }
       },
       cases: {
-        "maxCircleSize": 40
+        "maxCircleSize": 40,
+        "minZoom": 0
       }
     }
   },
@@ -81,7 +84,9 @@ const CONFIGS = [
     features: {
       exampleFeature: true,
       maskFeature: true,
-      showFlagsFeature: true
+      showFlagsFeature: true,
+      eacOnlyFeature: true,
+      forceDateFormatFeature: true,
     },
     defaults: {
       viewport:  {
@@ -95,7 +100,8 @@ const CONFIGS = [
       countries: eacCountries,
       baseMask: 'eac',
       cases: {
-        "maxCircleSize": 1000
+        "maxCircleSize": 1000,
+        "minZoom": 4
       }
     }
   },
