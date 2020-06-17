@@ -23,7 +23,9 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
 
         # Test and build React application
         ./scripts/test
-        yarn build
+
+        # Set CI="" to avoid failing on warnings.
+        CI="" yarn build
 
         ### Install dependencies ###
 
