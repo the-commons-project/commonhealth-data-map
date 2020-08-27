@@ -10,8 +10,8 @@
     "@turf/turf": "^5.1.6",
     "@urbica/react-map-gl": "^1.13.0",
     "color-interpolate": "1.0.5",
-    "dateformat": "3.0.3",
     "d3-scale": "2.0.0",
+    "dateformat": "3.0.3",
     "lodash.groupby": "^4.6.0",
     "lodash.keyby": "^4.6.0",
     "mapbox-gl": "^1.9.1",
@@ -22,7 +22,7 @@
     "react-mapbox-gl": "^4.8.3",
     "react-router": "5.1.2",
     "react-router-dom": "5.1.2",
-    "react-scripts": "3.2.0",
+    "react-scripts": "3.4.3",
     "react-vis": "1.11.7",
     "underscore": "1.10.2"
   },
