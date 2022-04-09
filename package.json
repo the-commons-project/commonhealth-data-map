@@ -15,7 +15,7 @@
     "lodash.groupby": "^4.6.0",
     "lodash.keyby": "^4.6.0",
     "mapbox-gl": "^1.9.1",
-    "moment": "2.24.0",
+    "moment": "2.29.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-map-gl": "^5.2.3",
